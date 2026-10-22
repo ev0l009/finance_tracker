@@ -1,0 +1,3 @@
+- The App State/Context Pattern
+- Dependency Injection
+- Singleton-based Injection or a Global Registry.
