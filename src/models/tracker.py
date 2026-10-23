@@ -28,8 +28,8 @@ class Tracker:
             print("Account name cannot be less than 3 characters\n")
             return
 
-        acc_map = {
-            acc["id"]: acc["account_name"]
+        acc_map: dict[str, str] = {
+            acc["id"]: acc["acc_name"]
             for acc in self.data["accounts"].values()
         }
 
@@ -43,19 +43,21 @@ class Tracker:
             return
 
         print("\nEnter your starting balance or press enter to start with an empty account at 0")
-        amt = ("\nEnter your starting balance: ")
+        amt = input("\nEnter your starting balance: ")
+
+        if not amt.strip():
+            amt = 0
 
         try:
             start_amt = int(amt)
         except ValueError:
             print("\nStarting amount must be an integer.\n")
-        
+            return
+
         if start_amt < 0:
             print("\nStarting amount cannot be a negative value.")
+            return
 
-        if not amt.strip:
-            start_amt = 0
-        
         new_acc_id = self.generate_id("acc")
 
         while new_acc_id in acc_map:
@@ -65,7 +67,10 @@ class Tracker:
             new_acc_id,
             acc_name,
             acc_type,
-            amount
+            start_amt
         ).to_dict()
 
         self.data["accounts"][new_acc_id] = new_acc
+        print("\nAccount creation successful.\n")
+
+    # def save(self):

@@ -8,7 +8,7 @@ class MenuState(Enum):
 
 class AccDict(TypedDict):
     id: str
-    name: str
+    acc_name: str
     created_at: str
     status: str
     acc_type: str
@@ -30,11 +30,3 @@ class AccType(Enum):
     CASH = "cash"
     SAVINGS = "savings"
     MOBILE = "mobile"
-
-class AccDict(TypedDict):
-    id: str
-    name: str
-    balance: int
-    account_type: str
-    account_status: str
-    created_at: str
