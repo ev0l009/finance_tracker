@@ -3,6 +3,8 @@ from ui import get_account_type
 import string
 import secrets
 from models.account import Account
+from file_manager.storage import save_session
+
 
 class Tracker:
     def __init__(self):
@@ -73,4 +75,5 @@ class Tracker:
         self.data["accounts"][new_acc_id] = new_acc
         print("\nAccount creation successful.\n")
 
-    # def save(self):
+    def save(self):
+        save_session(self.data)

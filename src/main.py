@@ -14,7 +14,7 @@ def tracker_runner():
             tracker.create_account()
             state = MenuState.DASHBOARD.value
     
-    print("\nSaving session\n")
+    tracker.save()
     print("Exiting")
 
 tracker_runner()

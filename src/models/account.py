@@ -1,4 +1,4 @@
-from models.types import AccType, AccStat, AccDict
+from models.types import AccStat, AccDict
 from datetime import datetime, timezone
 
 class Account:
@@ -19,9 +19,9 @@ class Account:
     def to_dict(self) -> AccDict:
         return {
             "id": self.id,
-            "account_name": self.account_name,
-            "balance": self.balance,
-            "account_type": self.account_type,
-            "account_status": self.account_status,
-            "created_at": self.created_at.isoformat()
+            "acc_name": self.account_name,
+            "acc_bal": self.balance,
+            "acc_type": self.account_type,
+            "status": self.account_status,
+            "created_at": self.created_at.isoformat(),
         }

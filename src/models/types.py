@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import TypedDict
+from datetime import datetime
 
 class MenuState(Enum):
     DASHBOARD = "dashboard"
@@ -9,10 +10,10 @@ class MenuState(Enum):
 class AccDict(TypedDict):
     id: str
     acc_name: str
-    created_at: str
-    status: str
-    acc_type: str
     acc_bal: int
+    acc_type: str
+    status: str
+    created_at: str | datetime
 
 class TrxDict(TypedDict):
     pass
@@ -20,6 +21,9 @@ class TrxDict(TypedDict):
 class TrackerData(TypedDict):
     accounts: dict[str, AccDict]
     transactions: list[TrxDict]
+
+# class JSONData(TypedDict):
+
 
 class AccStat(Enum):
     ACTIVE = "active"
