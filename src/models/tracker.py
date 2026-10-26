@@ -4,7 +4,7 @@ import string
 import secrets
 from models.account import Account
 from file_manager.storage import save_tracker_data, load_tracker_data
-
+from utils import validate_acc_name, validate_amount
 
 class Tracker:
     def __init__(self):
@@ -20,45 +20,32 @@ class Tracker:
 
     def create_account(self):
         print("Account Creation\n")
-        print(self.data["accounts"])
-
-        acc_name = input("Enter Account Name: ")
-        if not acc_name.strip():
-            print("\nAccount name cannot be empty")
-            return 
-
-        if len(acc_name) < 3:
-            print("Account name cannot be less than 3 characters\n")
-            return
 
         acc_map: dict[str, str] = {
             acc["id"]: acc["acc_name"]
             for acc in self.data["accounts"].values()
         }
 
-        if acc_name in acc_map.values():
-            print("\nAn account with this name already exists.\n")
+        acc_name = input("Enter Account Name: ")
+        try:
+            valid_acc_name = validate_acc_name(acc_name, acc_map)
+        except ValueError as err:
+            print(err)
             return
         
-        acc_type = get_account_type()
-
-        if not acc_type:
+        try:
+            acc_type = get_account_type()
+        except ValueError as err:
+            print(err)
             return
 
         print("\nEnter your starting balance or press enter to start with an empty account at 0")
         amt = input("\nEnter your starting balance: ")
 
-        if not amt.strip():
-            amt = 0
-
         try:
-            start_amt = int(amt)
-        except ValueError:
-            print("\nStarting amount must be an integer.\n")
-            return
-
-        if start_amt < 0:
-            print("\nStarting amount cannot be a negative value.")
+            start_amt = validate_amount(amt)
+        except ValueError as err:
+            print(err)
             return
 
         new_acc_id = self.generate_id("acc")

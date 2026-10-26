@@ -15,6 +15,14 @@
             "acc_type": "bank",
             "acc_status": "active",
             "created_at": "2026:10:26 14:43:24"
+        },
+        "acc_qsQMN": {
+            "id": "acc_qsQMN",
+            "acc_name": "Valerian",
+            "balance": 20000,
+            "acc_type": "cash",
+            "acc_status": "active",
+            "created_at": "2026:10:26 15:19:22"
         }
     },
     "transactions": []

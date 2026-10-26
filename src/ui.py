@@ -76,7 +76,6 @@ def get_account_type() -> str | None:
     choice = input("  Select option (1-4) → ").strip()
 
     if choice not in options:
-        print("\n  [!] Invalid account type. Please try again.")
-        return None
+        raise ValueError("\n  [!] Invalid account type. Please try again.")
 
     return options[choice]
