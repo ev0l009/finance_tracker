@@ -59,7 +59,7 @@ def get_acc_dashboard_opt(acc_name: str) -> str:
 
 
 
-def get_account_type() -> str | None:
+def get_account_type() -> str:
     options = {
         "1": AccType.BANK.value,
         "2": AccType.CASH.value,

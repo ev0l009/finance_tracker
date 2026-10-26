@@ -5,6 +5,7 @@ import secrets
 from models.account import Account
 from file_manager.storage import save_tracker_data, load_tracker_data
 from utils import validate_acc_name, validate_amount
+from models.types import AccDict, AccStat
 
 class Tracker:
     def __init__(self):
@@ -18,7 +19,7 @@ class Tracker:
         suffix = ''.join(secrets.choice(pool) for _ in range(5))
         gen_id = f"{preffix}_{suffix}"
         while gen_id in self.data[field]:
-            self.generate_id(self, preffix, field)
+            self.generate_id(preffix, field)
         return gen_id
 
     def create_account(self):
@@ -53,15 +54,33 @@ class Tracker:
 
         new_acc_id = self.generate_id("acc", "accounts")
 
-        new_acc = Account(
+        new_acc: AccDict = Account(
             new_acc_id,
-            acc_name,
+            valid_acc_name,
             acc_type,
             start_amt
-        ).__dict__
+        ).to_dict()
 
         self.data["accounts"][new_acc_id] = new_acc
         print("\nAccount creation successful.\n")
+
+    def list_accounts(self):
+        print(
+            "---- Accounts List ----\n"
+            "Acc Name    Acc ID   Acc Type   Acc Bal\n"
+        )
+        active_accounts = [
+            acc
+            for acc in self.data["accounts"].values()
+            if acc["acc_status"] == AccStat.ACTIVE.value
+        ]
+        if not active_accounts:
+            print("     There are no active accounts right now    ")
+            return
+        for acc in active_accounts:
+            print(
+                f"{acc['acc_name']}   {acc['id']}   {acc['acc_type']}  {acc['balance']}\n"
+            )
 
     def save(self):
         save_tracker_data(self.data)

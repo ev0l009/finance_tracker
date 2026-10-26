@@ -15,6 +15,9 @@ def tracker_runner():
         elif state == MenuState.CREATE_ACCOUNT.value:
             tracker.create_account()
             state = MenuState.DASHBOARD.value
+        elif state == MenuState.LIST_ACCOUNTS.value:
+            tracker.list_accounts()
+            state = MenuState.DASHBOARD.value
     
     tracker.save()
     print("Exiting")

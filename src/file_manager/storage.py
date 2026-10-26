@@ -2,6 +2,7 @@ from pathlib import Path
 import json
 from models.types import TrackerData
 from datetime import datetime
+from models.types import TrackerData
 
 DB_DIR = Path(__file__).resolve().parent.parent.parent/"db"
 FILE_PATH = DB_DIR/"data.json"
@@ -10,7 +11,7 @@ def initialize():
     DB_DIR.mkdir(exist_ok=True, parents=True)
 
 def save_tracker_data(tracker_data: TrackerData):
-    serialized_data = {
+    serialized_data:  TrackerData = {
         "accounts": {},
         "transactions": []
     }
@@ -41,7 +42,7 @@ def save_tracker_data(tracker_data: TrackerData):
         print("\nSession saved successfully\n")
 
 def load_tracker_data():
-    deserialized_data = {
+    deserialized_data: TrackerData = {
         "accounts": {},
         "transactions": []
     }

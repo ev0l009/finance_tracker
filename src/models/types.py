@@ -6,13 +6,14 @@ class MenuState(Enum):
     DASHBOARD = "dashboard"
     EXIT = "exit"
     CREATE_ACCOUNT = "create_account"
+    LIST_ACCOUNTS = "list_accounts"
 
 class AccDict(TypedDict):
     id: str
     acc_name: str
-    acc_bal: int
+    balance: int
     acc_type: str
-    status: str
+    acc_status: str
     created_at: str | datetime
 
 class TrxDict(TypedDict):
@@ -21,9 +22,6 @@ class TrxDict(TypedDict):
 class TrackerData(TypedDict):
     accounts: dict[str, AccDict]
     transactions: list[TrxDict]
-
-# class JSONData(TypedDict):
-
 
 class AccStat(Enum):
     ACTIVE = "active"
