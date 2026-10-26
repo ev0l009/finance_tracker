@@ -1,86 +1,82 @@
 from pathlib import Path
-from models.types import TrackerData
 import json
+from models.types import TrackerData
 from datetime import datetime
 
-DB_DIR = Path(__file__).resolve().parent.parent.parent/"data"
+DB_DIR = Path(__file__).resolve().parent.parent.parent/"db"
 FILE_PATH = DB_DIR/"data.json"
 
-def initialize_storage():
-        DB_DIR.mkdir(parents=True, exist_ok=True)
+def initialize():
+    DB_DIR.mkdir(exist_ok=True, parents=True)
 
-def save_session(data: TrackerData):
+def save_tracker_data(tracker_data: TrackerData):
+    serialized_data = {
+        "accounts": {},
+        "transactions": []
+    }
+
+    for acc_id, acc in tracker_data.get("accounts", {}).items():
+        acc_copy = acc.copy()
+
+        if "created_at" in acc_copy and acc_copy["created_at"]:
+            acc_copy["created_at"] = (
+                acc_copy["created_at"].strftime("%Y:%m:%d %H:%M:%S")
+                if isinstance(acc_copy["created_at"], datetime)
+                else acc_copy["created_at"]
+            )
+        
+        serialized_data["accounts"][acc_id] = acc_copy
+
     try:
         with open(FILE_PATH, "w") as file:
-            json.dump(data, file, indent=4)
+            json.dump(serialized_data, file, indent=4)
     except FileNotFoundError:
-        print(
-            "\nCouldn't find any previously saved sessions\n"
-            "Creating new database\n"
-        )
-        initialize_storage()
+        print("\nDB File not found. Initializing file...")
+        initialize()
         with open(FILE_PATH, "w") as file:
-            json.dump(data, file, indent=4)
-        print("\nSession saved successfully.")
-    except json.JSONDecodeError as err:
-         print(f"\nErr: {err}")
+            json.dump(serialized_data, file, indent=4)
+    except Exception as err:
+        print(f"Couldn't save your session: {err}")
     else:
-         print("\nSession saved successfully.")
+        print("\nSession saved successfully\n")
 
-# def load_session():
-#     if not FILE_PATH:
-#          initialize_storage()
-
-#     deserialized_data: TrackerData = {
-#         "accounts": {},
-#         "transactions": []
-#     }
-
-#     try:
-#         with open(FILE_PATH, "r") as file:
-#             raw_data: TrackerData = json.load(file)
-#     except (json.JSONDecodeError, FileNotFoundError, PermissionError) as err:
-#         print(f"\nErr while loading file: {err}")
-
-#     # Deserialize Accounts
-#     for acc_id, acc in raw_data.get("accounts", {}).items():
-#         # Copy the dictionary to avoid mutating the raw data
-#         account_copy = acc.copy()
-
-#         # Convert the ISO timestamp string back to a datetime object
-#         if "created_at" in account_copy and account_copy["created_at"]:
-#             account_copy["created_at"] = datetime.fromisoformat(account_copy["created_at"])
-
-
-def load_session() -> TrackerData:
-    deserialized_data: TrackerData = {
+def load_tracker_data():
+    deserialized_data = {
         "accounts": {},
         "transactions": []
     }
 
     try:
         with open(FILE_PATH, "r") as file:
-            raw_data: TrackerData = json.load(file)
-    except (json.JSONDecodeError, FileNotFoundError, PermissionError) as err:
-        print(f"\nErr while loading file: {err}")
-        return deserialized_data  # Return empty structure if file read fails
+            raw_data = json.load(file)
+    except FileNotFoundError:
+        print("\nCouldn't find any saved sessions. Initializing new session")
+        initialize()
+        return deserialized_data
 
-    # Deserialize Accounts
-    for acc_id, acc in raw_data.get("accounts", {}).items():
-        # Copy the dictionary to avoid mutating the raw data
-        account_copy = acc.copy()
+    except json.JSONDecodeError:
+        print("\nData has been corrupted. Initializing a new session...\n")
+        return deserialized_data
+
+    except Exception as err:
+        print(f"Err: {err}")
+        return deserialized_data
+
+    else:
+        for acc_id, acc in raw_data.get("accounts", {}).items():
+            acc_copy = acc.copy()
+
+            if "created_at" in acc_copy and acc_copy["created_at"]:
+                acc_copy["created_at"] = (
+                    datetime.strptime(
+                        acc_copy["created_at"], 
+                        "%Y:%m:%d %H:%M:%S"
+                    )
+                    if isinstance(acc_copy["created_at"], str)
+                    else acc_copy["created_at"]
+                )
         
-        # Convert the ISO timestamp string back to a datetime object
-        if "created_at" in account_copy and account_copy["created_at"]:
-            account_copy["created_at"] = datetime.fromisoformat(account_copy["created_at"])
-            
-        deserialized_data["accounts"][acc_id] = account_copy
-
-    # Deserialize Transactions (assuming they also have timestamps)
-    for tx in raw_data.get("transactions", []):
-        tx_copy = tx.copy()
-        if "created_at" in tx_copy and tx_copy["created_at"]:
-            tx_copy["created_at"] = datetime.fromisoformat(tx_copy["created_at"])
-        deserialized_data["transactions"].append(tx_copy)
-
+            deserialized_data["accounts"][acc_id] = acc_copy
+    
+    print("\nData loaded successfully.\n")
     return deserialized_data

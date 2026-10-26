@@ -1,0 +1,21 @@
+{
+    "accounts": {
+        "acc_Sq7ty": {
+            "id": "acc_Sq7ty",
+            "acc_name": "Opay",
+            "balance": 23000,
+            "acc_type": "bank",
+            "acc_status": "active",
+            "created_at": "2026:10:26 14:42:57"
+        },
+        "acc_dDQYG": {
+            "id": "acc_dDQYG",
+            "acc_name": "Val Bank",
+            "balance": 50000,
+            "acc_type": "bank",
+            "acc_status": "active",
+            "created_at": "2026:10:26 14:43:24"
+        }
+    },
+    "transactions": []
+}

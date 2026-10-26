@@ -6,6 +6,8 @@ def tracker_runner():
     tracker = Tracker()
     state = MenuState.DASHBOARD.value
 
+    tracker.load()
+
     while state != MenuState.EXIT.value:
         if state == MenuState.DASHBOARD.value:
             state = get_dashboard_opt()
@@ -16,5 +18,5 @@ def tracker_runner():
     
     tracker.save()
     print("Exiting")
-
+ 
 tracker_runner()

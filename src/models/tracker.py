@@ -3,7 +3,7 @@ from ui import get_account_type
 import string
 import secrets
 from models.account import Account
-from file_manager.storage import save_session
+from file_manager.storage import save_tracker_data, load_tracker_data
 
 
 class Tracker:
@@ -20,6 +20,7 @@ class Tracker:
 
     def create_account(self):
         print("Account Creation\n")
+        print(self.data["accounts"])
 
         acc_name = input("Enter Account Name: ")
         if not acc_name.strip():
@@ -70,10 +71,13 @@ class Tracker:
             acc_name,
             acc_type,
             start_amt
-        ).to_dict()
+        ).__dict__
 
         self.data["accounts"][new_acc_id] = new_acc
         print("\nAccount creation successful.\n")
 
     def save(self):
-        save_session(self.data)
+        save_tracker_data(self.data)
+
+    def load(self):
+        self.data = load_tracker_data()
