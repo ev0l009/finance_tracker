@@ -23,14 +23,15 @@ class Tracker:
         return gen_id
 
     def create_account(self):
-        print("Account Creation\n")
+        print("\n  ACCOUNT CREATION")
+        print("  " + "—" * 20)
 
         acc_map: dict[str, str] = {
             acc["id"]: acc["acc_name"]
             for acc in self.data["accounts"].values()
         }
 
-        acc_name = input("Enter Account Name: ")
+        acc_name = input("  Enter account name → ").strip()
         try:
             valid_acc_name = validate_acc_name(acc_name, acc_map)
         except ValueError as err:
@@ -43,8 +44,8 @@ class Tracker:
             print(err)
             return
 
-        print("\nEnter your starting balance or press enter to start with an empty account at 0")
-        amt = input("\nEnter your starting balance: ")
+        print("\n  [i] Press Enter to start with an empty balance ($0.00).")
+        amt = input("  Enter starting balance → ").strip()
 
         try:
             start_amt = validate_amount(amt)
@@ -62,25 +63,34 @@ class Tracker:
         ).to_dict()
 
         self.data["accounts"][new_acc_id] = new_acc
-        print("\nAccount creation successful.\n")
+        print("\n  [✓] Account creation successful.\n")
 
     def list_accounts(self):
-        print(
-            "---- Accounts List ----\n"
-            "Acc Name    Acc ID   Acc Type   Acc Bal\n"
-        )
+        print("\n  ACTIVE ACCOUNTS")
+        print("  " + "—" * 58)
+        
         active_accounts = [
             acc
             for acc in self.data["accounts"].values()
             if acc["acc_status"] == AccStat.ACTIVE.value
         ]
+        
         if not active_accounts:
-            print("     There are no active accounts right now    ")
+            print("  [i] There are no active accounts right now.\n")
             return
+
+        print(f"  {'Account Name':<16} {'Account ID':<12} {'Type':<12} {'Balance':>12}")
+        print("  " + "—" * 58)
+        
         for acc in active_accounts:
-            print(
-                f"{acc['acc_name']}   {acc['id']}   {acc['acc_type']}  {acc['balance']}\n"
-            )
+            name_trunc = acc['acc_name'].title()[:14] + ".." if len(acc['acc_name']) > 14 else acc['acc_name'].title()
+            type_str = acc['acc_type'].capitalize()
+            balance_str = f"${acc['balance']:,.2f}"
+            
+            print(f"  {name_trunc:<16} {acc['id']:<12} {type_str:<12} {balance_str:>12}")
+            
+        print("  " + "—" * 58 + "\n")
+
 
     def save(self):
         save_tracker_data(self.data)
