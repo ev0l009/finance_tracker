@@ -23,6 +23,14 @@
             "acc_type": "cash",
             "acc_status": "active",
             "created_at": "2026:10:26 15:19:22"
+        },
+        "acc_Gc72R": {
+            "id": "acc_Gc72R",
+            "acc_name": "Dash",
+            "balance": 23000,
+            "acc_type": "mobile",
+            "acc_status": "active",
+            "created_at": "2026:10:26 15:32:03"
         }
     },
     "transactions": []

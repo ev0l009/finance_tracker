@@ -13,10 +13,13 @@ class Tracker:
             "transactions": []
         }
 
-    def generate_id(self, preffix: str):
+    def generate_id(self, preffix: str, field: str):
         pool = string.ascii_letters + string.digits
         suffix = ''.join(secrets.choice(pool) for _ in range(5))
-        return f"{preffix}_{suffix}"
+        gen_id = f"{preffix}_{suffix}"
+        while gen_id in self.data[field]:
+            self.generate_id(self, preffix, field)
+        return gen_id
 
     def create_account(self):
         print("Account Creation\n")
@@ -48,10 +51,7 @@ class Tracker:
             print(err)
             return
 
-        new_acc_id = self.generate_id("acc")
-
-        while new_acc_id in acc_map:
-            new_acc_id = self.generate_id("acc")
+        new_acc_id = self.generate_id("acc", "accounts")
 
         new_acc = Account(
             new_acc_id,
