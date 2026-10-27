@@ -79,3 +79,20 @@ def get_account_type() -> str:
         raise ValueError("\n  [!] Invalid account type. Please try again.")
 
     return options[choice]
+
+def select_acc(acc_map: dict[str, str]):
+    options: dict [str, str] = {}
+    print(
+        "\n---- Select account ----\n"
+    )
+    for idx, acc_id in enumerate(acc_map, start=1):
+        print(
+            f"{idx}.  {acc_map[acc_id]}\n"
+        )
+        options[f"{idx}"] = acc_id
+    choice = input(f"Select an option [1-{len(options)}]: ")
+
+    if choice not in options:
+        raise ValueError("\nInvalid account selection.\n")
+
+    return options[choice]

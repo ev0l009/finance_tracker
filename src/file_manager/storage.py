@@ -32,14 +32,14 @@ def save_tracker_data(tracker_data: TrackerData):
         with open(FILE_PATH, "w") as file:
             json.dump(serialized_data, file, indent=4)
     except FileNotFoundError:
-        print("\nDB File not found. Initializing file...")
+        print("\n  [i] Database file not found. Initializing new ledger...")
         initialize()
         with open(FILE_PATH, "w") as file:
             json.dump(serialized_data, file, indent=4)
     except Exception as err:
-        print(f"Couldn't save your session: {err}")
+        print(f"\n  [!] Error: Unable to save session. Details: {err}")
     else:
-        print("\nSession saved successfully\n")
+        print("\n  [✓] Session saved successfully.\n")
 
 def load_tracker_data():
     deserialized_data: TrackerData = {
@@ -51,12 +51,12 @@ def load_tracker_data():
         with open(FILE_PATH, "r") as file:
             raw_data = json.load(file)
     except FileNotFoundError:
-        print("\nCouldn't find any saved sessions. Initializing new session")
+        print("\n  [i] No saved sessions found. Initializing new ledger...")
         initialize()
         return deserialized_data
 
     except json.JSONDecodeError:
-        print("\nData has been corrupted. Initializing a new session...\n")
+        print("\n  [!] Alert: Data file is corrupted. Initializing a clean session...\n")
         return deserialized_data
 
     except Exception as err:
@@ -79,5 +79,5 @@ def load_tracker_data():
         
             deserialized_data["accounts"][acc_id] = acc_copy
     
-    print("\nData loaded successfully.\n")
+    print("\n  [✓] Session data loaded successfully.\n")
     return deserialized_data

@@ -7,6 +7,7 @@ class MenuState(Enum):
     EXIT = "exit"
     CREATE_ACCOUNT = "create_account"
     LIST_ACCOUNTS = "list_accounts"
+    TRANSFER = "transfer"
 
 class AccDict(TypedDict):
     id: str

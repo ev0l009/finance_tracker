@@ -1,5 +1,5 @@
 from models.types import TrackerData
-from ui import get_account_type
+from ui import get_account_type, select_acc
 import string
 import secrets
 from models.account import Account
@@ -26,7 +26,7 @@ class Tracker:
         print("\n  ACCOUNT CREATION")
         print("  " + "—" * 20)
 
-        acc_map: dict[str, str] = {
+        acc_map = {
             acc["id"]: acc["acc_name"]
             for acc in self.data["accounts"].values()
         }
@@ -90,6 +90,30 @@ class Tracker:
             print(f"  {name_trunc:<16} {acc['id']:<12} {type_str:<12} {balance_str:>12}")
             
         print("  " + "—" * 58 + "\n")
+
+    def transfer(self):
+        print("Transfer")
+        if len(self.data["accounts"]) < 2:
+            print("You need at least 2 active accounts to make a transfer.")
+            return
+
+        acc_map = {
+            acc["id"]: acc["acc_name"]
+            for acc in self.data["accounts"].values()
+            if acc["acc_status"] == AccStat.ACTIVE.value
+        }
+
+        try:
+            sender_acc_id = select_acc(acc_map)
+        except ValueError as err:
+            print(err)
+            return
+
+        try:
+            reciever_acc_id = select_acc(acc_map)
+        except ValueError as err:
+            print(err)
+            return
 
 
     def save(self):
