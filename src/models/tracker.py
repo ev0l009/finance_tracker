@@ -3,11 +3,15 @@ from ui import get_account_type, select_acc
 import string
 import secrets
 from models.account import Account
+from models.transaction import TransferTrx
 from file_manager.storage import save_tracker_data, load_tracker_data
 from utils import validate_acc_name, validate_amount
 from models.types import AccDict, AccStat
 
 class Tracker:
+    TRX = "transactions"
+    ACC = "accounts"
+    
     def __init__(self):
         self.data: TrackerData = {
             "accounts": {},
@@ -53,7 +57,7 @@ class Tracker:
             print(err)
             return
 
-        new_acc_id = self.generate_id("acc", "accounts")
+        new_acc_id = self.generate_id("acc", self.ACC)
 
         new_acc: AccDict = Account(
             new_acc_id,
@@ -143,7 +147,14 @@ class Tracker:
         sender_acc["balance"] -= transfer_amt
         receiver_acc["balance"] += transfer_amt
 
-        
+        trx_id = self.generate_id("trx", self.TRX)
+
+        trx  = TransferTrx(
+            trx_id,
+            transfer_amt,
+            sender_acc_id,
+            reciever_acc_id
+        ).from_json()
 
         print("\n  [✓] Transfer completed successfully.\n")
 

@@ -18,7 +18,14 @@ class AccDict(TypedDict):
     created_at: str | datetime
 
 class TrxDict(TypedDict):
-    pass
+    id: str
+    amount: int
+    timestamp: datetime | str
+
+class TransferTrxDict(TrxDict):
+    source_acc_id: str
+    target_acc_id: str
+    transaction_type: str
 
 class TrackerData(TypedDict):
     accounts: dict[str, AccDict]
@@ -33,3 +40,6 @@ class AccType(Enum):
     CASH = "cash"
     SAVINGS = "savings"
     MOBILE = "mobile"
+
+class TrxType(Enum):
+    TRANSFER = "transfer"
