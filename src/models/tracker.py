@@ -92,9 +92,11 @@ class Tracker:
         print("  " + "—" * 58 + "\n")
 
     def transfer(self):
-        print("Transfer")
+        print("\n  FUND TRANSFER")
+        print("  " + "—" * 20)
+
         if len(self.data["accounts"]) < 2:
-            print("You need at least 2 active accounts to make a transfer.")
+            print("  [!] Action unavailable: You need at least 2 active accounts to make a transfer.\n")
             return
 
         acc_map = {
@@ -104,16 +106,46 @@ class Tracker:
         }
 
         try:
-            sender_acc_id = select_acc(acc_map)
+            sender_acc_id = select_acc(
+                acc_map,
+                "Source Account"
+            )
         except ValueError as err:
             print(err)
             return
 
+        sender_acc = self.data["accounts"][sender_acc_id]
+
+        amt = input("  Enter transfer amount → ").strip()
+
         try:
-            reciever_acc_id = select_acc(acc_map)
+            transfer_amt = validate_amount(amt)
         except ValueError as err:
             print(err)
             return
+
+        if transfer_amt > sender_acc["balance"]:
+            print("\n  [!] Error: Limit exceeded. Excessive transfers are not allowed.\n")
+            return
+
+        try:
+            reciever_acc_id = select_acc(
+                acc_map, 
+                sender_acc_id,
+                "Target Account"
+            )
+        except ValueError as err:
+            print(err)
+            return
+
+        receiver_acc = self.data["accounts"][reciever_acc_id]
+
+        sender_acc["balance"] -= transfer_amt
+        receiver_acc["balance"] += transfer_amt
+
+        
+
+        print("\n  [✓] Transfer completed successfully.\n")
 
 
     def save(self):

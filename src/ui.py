@@ -80,19 +80,34 @@ def get_account_type() -> str:
 
     return options[choice]
 
-def select_acc(acc_map: dict[str, str]):
-    options: dict [str, str] = {}
-    print(
-        "\n---- Select account ----\n"
-    )
-    for idx, acc_id in enumerate(acc_map, start=1):
-        print(
-            f"{idx}.  {acc_map[acc_id]}\n"
-        )
-        options[f"{idx}"] = acc_id
-    choice = input(f"Select an option [1-{len(options)}]: ")
+def select_acc(
+    acc_map: dict[str, str], 
+    id_to_skip: str | None = None,
+    heading: str | None = None
+) -> str:
+    options: dict[str, str] = {}
+    
+    title_text = heading.upper() if heading else "SELECT ACCOUNT"
+    print(f"\n  {title_text}")
+    print("  " + "—" * 25)
+
+    idx = 1
+    for acc_id in acc_map:
+        if acc_id == id_to_skip:
+            continue
+        print(f"  {idx}. {acc_map[acc_id].title()}")
+        options[str(idx)] = acc_id
+        idx += 1
+
+    if not options:
+        print("  (No eligible accounts available)\n")
+        raise ValueError("No eligible accounts available.")
+
+    print()
+    choice = input(f"  Select option (1-{len(options)}) → ").strip()
 
     if choice not in options:
-        raise ValueError("\nInvalid account selection.\n")
+        print("\n  [!] Invalid choice. Selection canceled.\n")
+        raise ValueError("Invalid account selection.")
 
     return options[choice]

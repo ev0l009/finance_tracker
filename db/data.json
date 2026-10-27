@@ -3,7 +3,7 @@
         "acc_Sq7ty": {
             "id": "acc_Sq7ty",
             "acc_name": "Opay",
-            "balance": 23000,
+            "balance": 22000,
             "acc_type": "bank",
             "acc_status": "active",
             "created_at": "2026:10:26 14:42:57"
@@ -27,7 +27,7 @@
         "acc_Gc72R": {
             "id": "acc_Gc72R",
             "acc_name": "Dash",
-            "balance": 23000,
+            "balance": 24000,
             "acc_type": "mobile",
             "acc_status": "active",
             "created_at": "2026:10:26 15:32:03"
