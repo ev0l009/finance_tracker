@@ -6,7 +6,7 @@ from models.account import Account
 from models.transaction import TransferTrx
 from file_manager.storage import save_tracker_data, load_tracker_data
 from utils import validate_acc_name, validate_amount
-from models.types import AccDict, AccStat
+from models.types import AccStat
 
 class Tracker:
     TRX = "transactions"
@@ -31,7 +31,7 @@ class Tracker:
         print("  " + "—" * 20)
 
         acc_map = {
-            acc["id"]: acc["acc_name"]
+            acc.id: acc.acc_name
             for acc in self.data["accounts"].values()
         }
 
@@ -59,12 +59,12 @@ class Tracker:
 
         new_acc_id = self.generate_id("acc", self.ACC)
 
-        new_acc: AccDict = Account(
+        new_acc = Account(
             new_acc_id,
             valid_acc_name,
             acc_type,
             start_amt
-        ).to_dict()
+        )
 
         self.data["accounts"][new_acc_id] = new_acc
         print("\n  [✓] Account creation successful.\n")
@@ -76,7 +76,7 @@ class Tracker:
         active_accounts = [
             acc
             for acc in self.data["accounts"].values()
-            if acc["acc_status"] == AccStat.ACTIVE.value
+            if acc.acc_status == AccStat.ACTIVE.value
         ]
         
         if not active_accounts:
@@ -87,11 +87,11 @@ class Tracker:
         print("  " + "—" * 58)
         
         for acc in active_accounts:
-            name_trunc = acc['acc_name'].title()[:14] + ".." if len(acc['acc_name']) > 14 else acc['acc_name'].title()
-            type_str = acc['acc_type'].capitalize()
-            balance_str = f"${acc['balance']:,.2f}"
+            name_trunc = acc.acc_name.title()[:14] + ".." if len(acc.acc_name) > 14 else acc.acc_name.title()
+            type_str = acc.acc_type.capitalize()
+            balance_str = f"${acc.balance:,.2f}"
             
-            print(f"  {name_trunc:<16} {acc['id']:<12} {type_str:<12} {balance_str:>12}")
+            print(f"  {name_trunc:<16} {acc.id:<12} {type_str:<12} {balance_str:>12}")
             
         print("  " + "—" * 58 + "\n")
 
@@ -104,9 +104,9 @@ class Tracker:
             return
 
         acc_map = {
-            acc["id"]: acc["acc_name"]
+            acc.id: acc.acc_name
             for acc in self.data["accounts"].values()
-            if acc["acc_status"] == AccStat.ACTIVE.value
+            if acc.acc_status == AccStat.ACTIVE.value
         }
 
         try:
@@ -128,7 +128,7 @@ class Tracker:
             print(err)
             return
 
-        if transfer_amt > sender_acc["balance"]:
+        if transfer_amt > sender_acc.balance:
             print("\n  [!] Error: Limit exceeded. Excessive transfers are not allowed.\n")
             return
 
@@ -144,8 +144,8 @@ class Tracker:
 
         receiver_acc = self.data["accounts"][reciever_acc_id]
 
-        sender_acc["balance"] -= transfer_amt
-        receiver_acc["balance"] += transfer_amt
+        sender_acc.balance -= transfer_amt
+        receiver_acc.balance += transfer_amt
 
         trx_id = self.generate_id("trx", self.TRX)
 
@@ -155,11 +155,13 @@ class Tracker:
             source_acc_id=sender_acc_id,
             target_acc_id=reciever_acc_id
         ).__dict__
-
         self.data["transactions"].append(trx)
+        print(self.data["transactions"])
         
         print("\n  [✓] Transfer completed successfully.\n")
 
+    def acc_dashboard(self):
+        pass
 
     def save(self):
         save_tracker_data(self.data)
