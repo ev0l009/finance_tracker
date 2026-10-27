@@ -150,12 +150,14 @@ class Tracker:
         trx_id = self.generate_id("trx", self.TRX)
 
         trx  = TransferTrx(
-            trx_id,
-            transfer_amt,
-            sender_acc_id,
-            reciever_acc_id
-        ).from_json()
+            id=trx_id,
+            amount=transfer_amt,
+            source_acc_id=sender_acc_id,
+            target_acc_id=reciever_acc_id
+        ).__dict__
 
+        self.data["transactions"].append(trx)
+        
         print("\n  [✓] Transfer completed successfully.\n")
 
 
