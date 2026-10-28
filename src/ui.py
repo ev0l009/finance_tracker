@@ -1,11 +1,11 @@
-from models.types import MenuState, AccType
+from models.types import MenuState, AccType, AccDashState
 
 def get_dashboard_opt() -> str:
     options = {
         "1": MenuState.CREATE_ACCOUNT.value,
-        "2": "list_accounts",
-        "3": "transfer",
-        "4": "account_dashboard",
+        "2": MenuState.LIST_ACCOUNTS.value,
+        "3": MenuState.TRANSFER.value,
+        "4": MenuState.ACC_DASHBOARD.value,
         "5": "transactions",
         "6": "financial_overview",
         "7": MenuState.EXIT.value
@@ -30,14 +30,13 @@ def get_dashboard_opt() -> str:
     return options[choice]
 
 
-def get_acc_dashboard_opt(acc_name: str) -> str:
+def get_acc_dash_state(acc_name: str) -> str:
     options = {
-        "1": "check_balance",
-        "2": "deposit",
-        "3": "withdraw",
-        "4": "deactivate",
-        "5": "main_menu",
-        "6": "exit"
+        "1": AccDashState.BALANCE.value,
+        "2": AccDashState.DEPOSIT.value,
+        "3": AccDashState.WITHDRWAL.value,
+        "4": AccDashState.DEACTIVATE.value,
+        "5": AccDashState.RETURN.value
     }
 
     print(f"\n  ACCOUNT: {acc_name.upper()}")
@@ -46,8 +45,7 @@ def get_acc_dashboard_opt(acc_name: str) -> str:
     print("  2. Deposit")
     print("  3. Withdraw")
     print("  4. Deactivate Account")
-    print("  5. Main Menu")
-    print("  6. Exit\n")
+    print("  5. Main Menu\n")
 
     choice = input("  Select option (1-6) → ").strip()
 
@@ -56,7 +54,6 @@ def get_acc_dashboard_opt(acc_name: str) -> str:
         return "account_dashboard"
 
     return options[choice]
-
 
 
 def get_account_type() -> str:

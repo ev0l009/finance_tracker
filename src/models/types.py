@@ -1,7 +1,10 @@
+from __future__ import annotations
 from enum import Enum
-from typing import TypedDict
+from typing import TypedDict, TYPE_CHECKING
 from datetime import datetime
-from models.account import Account
+
+if TYPE_CHECKING:
+    from models.account import Account
 
 class MenuState(Enum):
     DASHBOARD = "dashboard"
@@ -9,6 +12,15 @@ class MenuState(Enum):
     CREATE_ACCOUNT = "create_account"
     LIST_ACCOUNTS = "list_accounts"
     TRANSFER = "transfer"
+    ACC_DASHBOARD = "acc_dashboard"
+
+class AccDashState(Enum):
+    ACC_DASH = "acc_dash"
+    BALANCE = "balance"
+    DEPOSIT = "deposit"
+    WITHDRWAL = "withdrawal"
+    DEACTIVATE = "deactivate"
+    RETURN = "return"
 
 class AccDict(TypedDict):
     id: str

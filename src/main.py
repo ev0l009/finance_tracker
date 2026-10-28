@@ -23,6 +23,10 @@ def tracker_runner():
         elif state == MenuState.TRANSFER.value:
             tracker.transfer()
             state = MenuState.DASHBOARD.value
+
+        elif state == MenuState.ACC_DASHBOARD.value:
+            tracker.acc_dashboard()
+            state = MenuState.DASHBOARD.value
     
     tracker.save()
     print("  • Exiting system...")

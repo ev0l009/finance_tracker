@@ -1,12 +1,12 @@
 from models.types import TrackerData
-from ui import get_account_type, select_acc
+from ui import get_account_type, select_acc, get_acc_dash_state
 import string
 import secrets
 from models.account import Account
 from models.transaction import TransferTrx
 from file_manager.storage import save_tracker_data, load_tracker_data
 from utils import validate_acc_name, validate_amount
-from models.types import AccStat
+from models.types import AccStat, AccDashState
 
 class Tracker:
     TRX = "transactions"
@@ -29,10 +29,10 @@ class Tracker:
     def create_account(self):
         print("\n  ACCOUNT CREATION")
         print("  " + "—" * 20)
-
+        
         acc_map = {
-            acc.id: acc.acc_name
-            for acc in self.data["accounts"].values()
+            acc_id: acc.acc_name
+            for acc_id, acc in self.data["accounts"].items()
         }
 
         acc_name = input("  Enter account name → ").strip()
@@ -161,7 +161,40 @@ class Tracker:
         print("\n  [✓] Transfer completed successfully.\n")
 
     def acc_dashboard(self):
-        pass
+        acc_map = {
+            acc.id: acc.acc_name
+            for acc in self.data["accounts"].values()
+            if acc.acc_status == AccStat.ACTIVE.value
+        }
+        acc_id = select_acc(acc_map)
+        acc = self.data["accounts"][acc_id]
+        state = AccDashState.ACC_DASH.value
+
+        while state != AccDashState.RETURN.value:
+            if state == AccDashState.ACC_DASH.value:
+                state = get_acc_dash_state(acc.acc_name)
+
+            elif state == AccDashState.BALANCE.value:
+                acc.show_balance()
+                state = AccDashState.ACC_DASH.value
+
+            elif state == AccDashState.DEPOSIT.value:
+                acc.deposit()
+                # create and log trxs here. Get result from 
+                # relevant accactions and use it to create 
+                # trxs and append to data
+                state = AccDashState.ACC_DASH.value
+
+            elif state == AccDashState.WITHDRWAL.value:
+                print("Expense")
+                state = AccDashState.ACC_DASH.value
+
+            elif state == AccDashState.DEACTIVATE.value:
+                print("Deactivating acc")
+                state = AccDashState.ACC_DASH.value
+
+        return
+        
 
     def save(self):
         save_tracker_data(self.data)
