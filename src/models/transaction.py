@@ -27,14 +27,24 @@ class TransferTrx(Transaction):
     transaction_type: str = TrxType.TRANSFER.value
 
     @classmethod
-    def to_dict(cls, data: dict[str, Any]) -> TransferTrxDict:
+    def from_json(cls, data: dict[str, Any]):
         base_data = cls.parse_json(data)
 
-        return {
+        return cls(
             **base_data,
-            "source_acc_id":data["source_acc_id"],
-            "target_acc_id":data["target_acc_id"],
-            "transaction_type": data["transaction_type"]
+            source_acc_id=data["source_acc_id"],
+            target_acc_id=data["target_acc_id"],
+            transaction_type=data["transaction_type"]
+        )
+    
+    def to_dict(self) -> TransferTrxDict:
+        return {
+            "id": self.id,
+            "amount": self.amount,
+            "timestamp": self.timestamp,
+            "source_acc_id": self.source_acc_id,
+            "target_acc_id": self.target_acc_id,
+            "transaction_type": self.transaction_type
         }
     
 @dataclass(frozen=True, kw_only=True)
@@ -43,13 +53,22 @@ class DepositTrx(Transaction):
     transaction_type: str = TrxType.DEPOSIT.value
     
     @classmethod
-    def to_dict(cls, data: dict[str, Any]) -> DepositTrxDict:
+    def from_json(cls, data: dict[str, Any]):
         base_data = cls.parse_json(data)
 
-        return {
+        return cls(
             **base_data,
-            "acc_id": data["acc_id"],
-            "transaction_type": data["transaction_type"]
+            acc_id=data["acc_id"],
+            transaction_type=data["transaction_type"]
+        )
+    
+    def to_dict(self) -> DepositTrxDict:
+        return {
+            "id": self.id,
+            "amount": self.amount,
+            "acc_id": self.acc_id,
+            "timestamp": self.timestamp,
+            "transaction_type": self.transaction_type
         }
 
 @dataclass(frozen=True, kw_only=True)
@@ -58,11 +77,20 @@ class WithdrawalTrx(Transaction):
     transaction_type: str = TrxType.WITHDRAW.value
 
     @classmethod
-    def to_dict(cls, data: dict[str, Any]) -> WithdrawalTrxDict:
+    def from_json(cls, data: dict[str, Any]):
         base_data = cls.parse_json(data)
 
-        return {
+        return cls(
             **base_data,
-            "category": data["category"],
-            "transaction_type": data["transaction_type"]
+            category=data["category"],
+            transaction_type=data["transaction_type"]
+        )
+    
+    def to_dict(self) -> WithdrawalTrxDict:
+        return {
+            "id": self.id,
+            "amount": self.amount,
+            "timestamp": self.timestamp,
+            "category": self.category,
+            "transaction_type": self.transaction_type
         }

@@ -6,7 +6,7 @@ from models.account import Account
 from models.transaction import TransferTrx, DepositTrx, WithdrawalTrx
 from file_manager.storage import save_tracker_data, load_tracker_data
 from utils import validate_acc_name, validate_amount
-from models.types import AccStat, AccDashState
+from models.types import AccStat, AccDashState, TrxType
 
 class Tracker:
     TRX = "transactions"
@@ -65,8 +65,18 @@ class Tracker:
             acc_type,
             start_amt
         )
-
         self.data["accounts"][new_acc_id] = new_acc
+
+        if start_amt != 0:
+            trx_id = self.generate_id("trx", self.TRX)
+            trx = DepositTrx(
+                id=trx_id,
+                amount=start_amt,
+                acc_id=new_acc_id
+            ).to_dict()
+
+            self.data["transactions"].append(trx)
+
         print("\n  [✓] Account creation successful.\n")
 
     def list_accounts(self):
@@ -154,7 +164,7 @@ class Tracker:
             amount=transfer_amt,
             source_acc_id=sender_acc_id,
             target_acc_id=reciever_acc_id
-        ).__dict__
+        ).to_dict()
         self.data["transactions"].append(trx)
         
         print("\n  [✓] Transfer completed successfully.\n")
@@ -185,7 +195,7 @@ class Tracker:
                         id=trx_id,
                         acc_id=acc_id,
                         amount=dep_amt
-                    ).__dict__
+                    ).to_dict()
                     self.data["transactions"].append(trx)
 
                 state = AccDashState.ACC_DASH.value
@@ -200,7 +210,7 @@ class Tracker:
                             id=trx_id,
                             category=category,
                             amount=exp_amt
-                        ).__dict__
+                        ).to_dict()
                         self.data["transactions"].append(trx)
 
                 state = AccDashState.ACC_DASH.value
@@ -211,7 +221,79 @@ class Tracker:
 
         return
         
+    def list_transactions(self):
+        if not self.data["transactions"]:
+            print("\n  [!] No transactions found in this ledger.\n")
+            return
 
+        print("\n  TRANSACTION HISTORY")
+        print("  " + "—" * 45)
+        print(f"  {'ID':<13} {'Type':<11} {'Amount':>16}")
+        print("  " + "—" * 45)
+
+        for trx in self.data["transactions"]:
+            trx_id = trx['id']
+            trx_type = trx['transaction_type'].capitalize()
+            
+            # Add clear structural visual signs for financial directions
+            if trx['transaction_type'] == TrxType.DEPOSIT.value:
+                amt_str = f"+${trx['amount']:,.2f}"
+            else:
+                amt_str = f"-${trx['amount']:,.2f}"
+
+            print(f"  {trx_id:<13} {trx_type:<11} {amt_str:>16}")
+
+        print("  " + "—" * 45 + "\n")
+
+    def reports(self):
+        active_accs: list[Account] = [
+            acc
+            for acc in self.data["accounts"].values()
+            if acc.acc_status == AccStat.ACTIVE.value
+        ]
+
+        net_balance = sum(acc.balance for acc in active_accs)
+
+        total_income = sum(
+            trx["amount"] 
+            for trx in self.data["transactions"] 
+            if trx["transaction_type"] == TrxType.DEPOSIT.value
+        )
+
+        total_expense = sum(
+            trx["amount"] 
+            for trx in self.data["transactions"] 
+            if trx["transaction_type"] == TrxType.WITHDRAW.value
+        )
+
+        # Calculate categorical aggregates cleanly
+        expense_category = {}
+        for trx in self.data["transactions"]:
+            if trx["transaction_type"] == TrxType.WITHDRAW.value:
+                cat = trx["category"].title()
+                expense_category[cat] = expense_category.get(cat, 0) + trx["amount"]
+
+        # 1. Macro Financial Summary Block
+        print("\n  FINANCIAL REPORT OVERVIEW")
+        print("  " + "—" * 35)
+        print(f"  Net Total Balance:  ${net_balance:,.2f}")
+        print(f"  Total Income (+):   ${total_income:,.2f}")
+        print(f"  Total Expenses (-): ${total_expense:,.2f}")
+        print("  " + "—" * 35)
+
+        # 2. Categorical Expense Table
+        print("\n  EXPENSES BY CATEGORY")
+        print("  " + "—" * 35)
+        
+        if not expense_category:
+            print("  (No expense transactions logged yet)")
+        else:
+            for cat, amt in expense_category.items():
+                print(f"  {cat:<18} ${amt:>12,.2f}")
+                
+        print("  " + "—" * 35 + "\n")
+
+    
     def save(self):
         save_tracker_data(self.data)
 

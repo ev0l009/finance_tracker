@@ -13,6 +13,8 @@ class MenuState(Enum):
     LIST_ACCOUNTS = "list_accounts"
     TRANSFER = "transfer"
     ACC_DASHBOARD = "acc_dashboard"
+    TRANSACTIONS = "transactions"
+    REPORTS = "reports"
 
 class AccDashState(Enum):
     ACC_DASH = "acc_dash"
@@ -50,11 +52,11 @@ class WithdrawalTrxDict(TrxDict):
 
 class TrackerData(TypedDict):
     accounts: dict[str, Account]
-    transactions: list[TrxDict]
+    transactions: list[TransferTrxDict | DepositTrxDict | WithdrawalTrxDict]
 
 class JsonTrackerData(TypedDict):
     accounts: dict[str, AccDict]
-    transactions: list[TrxDict]
+    transactions: list[TransferTrxDict | DepositTrxDict | WithdrawalTrxDict]
 
 class AccStat(Enum):
     ACTIVE = "active"

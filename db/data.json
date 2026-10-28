@@ -1,0 +1,74 @@
+{
+    "accounts": {
+        "acc_CBZc8": {
+            "id": "acc_CBZc8",
+            "acc_name": "Opay Acc",
+            "balance": 14500,
+            "acc_type": "mobile",
+            "acc_status": "active",
+            "created_at": "2026-10-28T22:17:48+00:00"
+        },
+        "acc_b5W75": {
+            "id": "acc_b5W75",
+            "acc_name": "UBA Acc",
+            "balance": 27000,
+            "acc_type": "bank",
+            "acc_status": "active",
+            "created_at": "2026-10-28T22:18:50+00:00"
+        },
+        "acc_p6jus": {
+            "id": "acc_p6jus",
+            "acc_name": "Yakubu Manage",
+            "balance": 1500,
+            "acc_type": "cash",
+            "acc_status": "active",
+            "created_at": "2026-10-28T22:19:15+00:00"
+        }
+    },
+    "transactions": [
+        {
+            "id": "trx_edY1H",
+            "amount": 15000,
+            "acc_id": "acc_CBZc8",
+            "timestamp": "2026-10-28T22:17:48+00:00",
+            "transaction_type": "deposit"
+        },
+        {
+            "id": "trx_p6mcv",
+            "amount": 30000,
+            "acc_id": "acc_b5W75",
+            "timestamp": "2026-10-28T22:18:50+00:00",
+            "transaction_type": "deposit"
+        },
+        {
+            "id": "trx_pa0Tq",
+            "amount": 2000,
+            "timestamp": "2026-10-28T22:19:38+00:00",
+            "source_acc_id": "acc_CBZc8",
+            "target_acc_id": "acc_p6jus",
+            "transaction_type": "transfer"
+        },
+        {
+            "id": "trx_Wujd8",
+            "amount": 3000,
+            "timestamp": "2026-10-28T22:19:56+00:00",
+            "source_acc_id": "acc_b5W75",
+            "target_acc_id": "acc_CBZc8",
+            "transaction_type": "transfer"
+        },
+        {
+            "id": "trx_Uz9yZ",
+            "amount": 500,
+            "timestamp": "2026-10-28T22:20:17+00:00",
+            "category": "food",
+            "transaction_type": "withdraw"
+        },
+        {
+            "id": "trx_B7mqx",
+            "amount": 1500,
+            "timestamp": "2026-10-28T22:20:57+00:00",
+            "category": "airtime",
+            "transaction_type": "withdraw"
+        }
+    ]
+}

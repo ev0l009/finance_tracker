@@ -6,8 +6,8 @@ def get_dashboard_opt() -> str:
         "2": MenuState.LIST_ACCOUNTS.value,
         "3": MenuState.TRANSFER.value,
         "4": MenuState.ACC_DASHBOARD.value,
-        "5": "transactions",
-        "6": "financial_overview",
+        "5": MenuState.TRANSACTIONS.value,
+        "6": MenuState.REPORTS.value,
         "7": MenuState.EXIT.value
     }
  
