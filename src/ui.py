@@ -108,3 +108,29 @@ def select_acc(
         raise ValueError("Invalid account selection.")
 
     return options[choice]
+
+def get_category() -> str:
+    cat_options = {
+        "1" : "food",
+        "2" : "bills",
+        "3" : "transport",
+        "4" : "airtime",
+        "5" : "health",
+        "6" : "shopping",
+        "7" : "entertainment",
+        "8" : "other"
+    }
+
+    print("Select category: ")
+
+    for idx, cat in cat_options.items():
+        print(f"{idx}. {cat.capitalize()}")
+
+    print()
+    choice = input(f"  Select option (1-{len(cat_options)}) → ").strip()
+
+    if choice not in cat_options:
+        print("\n  [!] Invalid choice. Selection canceled.\n")
+        raise ValueError("Invalid category selection.")
+
+    return cat_options[choice]

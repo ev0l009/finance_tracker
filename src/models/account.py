@@ -2,6 +2,7 @@ from models.types import AccStat, AccDict
 from datetime import datetime, timezone
 from typing import Any
 from utils import validate_amount
+from ui import get_category
 
 class Account:
     def __init__(
@@ -77,19 +78,4 @@ class Account:
         if expense_amt == 0:
             print("Null transactions are not permitted")
 
-        category = 
-#         food — groceries, meals, eating out
-
-# bills — utilities, rent, subscriptions
-
-# transport — fuel, transit, ride-hailing
-
-# airtime — phone credit, data
-
-# health — meds, clinic, insurance
-
-# shopping — clothes, gadgets, personal items
-
-# entertainment — movies, games, streaming
-
-# other — catch-all
+        category = get_category()
