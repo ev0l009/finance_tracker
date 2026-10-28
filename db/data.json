@@ -24,6 +24,12 @@
             "timestamp": "2026-10-28T09:25:27+00:00",
             "source_acc_id": "acc_GlywP",
             "target_acc_id": "acc_1x2ZN"
+        },
+        {
+            "id": "trx_bv0qx",
+            "amount": 1000,
+            "timestamp": "2026-10-28T13:39:34+00:00",
+            "category": "food"
         }
     ]
 }

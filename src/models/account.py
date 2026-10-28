@@ -48,6 +48,9 @@ class Account:
     def credit(self, amt: int):
         self.balance += amt
 
+    def debit(self, amt: int):
+        self.balance -= amt
+
     def deposit(self):
         print("DEPOSIT")
         amt = input("  Enter amount → ").strip()
@@ -60,9 +63,11 @@ class Account:
 
         if deposit_amt == 0:
             print("Null transactions are not permitted")
+            return
 
         self.credit(deposit_amt)
         print(f"Transaction successful. your new balance is {self.balance}")
+        return deposit_amt
 
     def withdraw(self):
         print("WITHDRAWAL")
@@ -78,4 +83,34 @@ class Account:
         if expense_amt == 0:
             print("Null transactions are not permitted")
 
-        category = get_category()
+        if expense_amt > self.balance:
+            print("Excessive transactions are not permitted")
+            return
+
+        try:
+            category = get_category()
+        except ValueError as err:
+            print(err)
+            return
+
+        self.debit(expense_amt)
+        print(f"Transaction successful. your new balance is {self.balance}")
+        return expense_amt, category
+
+    def deactivate(self):
+        print(
+            "Account deactivation\n"
+            "Warning, deactivating this account means\n"
+            "You wont be able to access it and perform transactions with it until it has been activated.\n"
+            "1. Proceed\n"
+            "2. Return\n"
+        )
+
+        choice = input("Select an option to proceed [1,2]: ")
+
+        if choice == "1":
+            self.acc_status = AccStat.INACTIVE.value
+            print("\nAccount deactivated successfully.\n")
+            return
+
+        print("\nOperation cancelled. Returning...\n")

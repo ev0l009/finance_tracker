@@ -40,6 +40,10 @@ class TransferTrxDict(TrxDict):
     target_acc_id: str
     transaction_type: str
 
+class DepositTrxDict(TrxDict):
+    acc_id: str
+    transaction_type: str
+
 class TrackerData(TypedDict):
     accounts: dict[str, Account]
     transactions: list[TrxDict]
@@ -60,3 +64,5 @@ class AccType(Enum):
 
 class TrxType(Enum):
     TRANSFER = "transfer"
+    WITHDRAW = "withdraw"
+    DEPOSIT = "deposit"

@@ -3,7 +3,7 @@ from ui import get_account_type, select_acc, get_acc_dash_state
 import string
 import secrets
 from models.account import Account
-from models.transaction import TransferTrx
+from models.transaction import TransferTrx, DepositTrx, WithdrawalTrx
 from file_manager.storage import save_tracker_data, load_tracker_data
 from utils import validate_acc_name, validate_amount
 from models.types import AccStat, AccDashState
@@ -156,7 +156,6 @@ class Tracker:
             target_acc_id=reciever_acc_id
         ).__dict__
         self.data["transactions"].append(trx)
-        print(self.data["transactions"])
         
         print("\n  [✓] Transfer completed successfully.\n")
 
@@ -179,18 +178,35 @@ class Tracker:
                 state = AccDashState.ACC_DASH.value
 
             elif state == AccDashState.DEPOSIT.value:
-                acc.deposit()
-                # create and log trxs here. Get result from 
-                # relevant accactions and use it to create 
-                # trxs and append to data
+                dep_amt = acc.deposit()
+                if dep_amt:
+                    trx_id = self.generate_id("trx", self.TRX)
+                    trx =  DepositTrx(
+                        id=trx_id,
+                        acc_id=acc_id,
+                        amount=dep_amt
+                    ).__dict__
+                    self.data["transactions"].append(trx)
+
                 state = AccDashState.ACC_DASH.value
 
             elif state == AccDashState.WITHDRWAL.value:
-                print("Expense")
+                result = acc.withdraw()
+                if isinstance(result, tuple):
+                    exp_amt, category = result
+                    if exp_amt and category:
+                        trx_id = self.generate_id("trx", self.TRX)
+                        trx = WithdrawalTrx(
+                            id=trx_id,
+                            category=category,
+                            amount=exp_amt
+                        ).__dict__
+                        self.data["transactions"].append(trx)
+
                 state = AccDashState.ACC_DASH.value
 
             elif state == AccDashState.DEACTIVATE.value:
-                print("Deactivating acc")
+                acc.deactivate()
                 state = AccDashState.ACC_DASH.value
 
         return
