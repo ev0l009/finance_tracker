@@ -41,9 +41,10 @@ class Account:
         }
 
     def show_balance(self):
-        print(
-            f"Your current balance is {self.balance}."
-        )
+        print("\n  CURRENT BALANCE")
+        print("  " + "—" * 25)
+        print(f"  Available Funds:  ${self.balance:,.2f}")
+        print("  " + "—" * 25 + "\n")
 
     def credit(self, amt: int):
         self.balance += amt
@@ -53,7 +54,7 @@ class Account:
 
     def deposit(self):
         print("DEPOSIT")
-        amt = input("  Enter amount → ").strip()
+        amt = input("  Enter deposit amount → ").strip()
 
         try:
             deposit_amt = validate_amount(amt)
@@ -62,17 +63,17 @@ class Account:
             return
 
         if deposit_amt == 0:
-            print("Null transactions are not permitted")
+            print("\n  [!] Transaction canceled: Amount must be greater than $0.00.")
             return
 
         self.credit(deposit_amt)
-        print(f"Transaction successful. your new balance is {self.balance}")
+        print(f"\n  [✓] Transaction successful. New Balance: ${self.balance:,.2f}\n")
         return deposit_amt
 
     def withdraw(self):
         print("WITHDRAWAL")
 
-        amt = input("  Enter amount → ").strip()
+        amt = input("  Enter withdrawal amount → ").strip()
         
         try:
             expense_amt = validate_amount(amt)
@@ -81,10 +82,10 @@ class Account:
             return
 
         if expense_amt == 0:
-            print("Null transactions are not permitted")
+            print("\n  [!] Transaction canceled: Amount must be greater than $0.00.")
 
         if expense_amt > self.balance:
-            print("Excessive transactions are not permitted")
+            print("\n  [!] Error: Transaction limit exceeded.")
             return
 
         try:
@@ -94,23 +95,22 @@ class Account:
             return
 
         self.debit(expense_amt)
-        print(f"Transaction successful. your new balance is {self.balance}")
+        print(f"\n  [✓] Transaction successful. New Balance: ${self.balance:,.2f}\n")
         return expense_amt, category
 
     def deactivate(self):
-        print(
-            "Account deactivation\n"
-            "Warning, deactivating this account means\n"
-            "You wont be able to access it and perform transactions with it until it has been activated.\n"
-            "1. Proceed\n"
-            "2. Return\n"
-        )
+        print("\n  ACCOUNT DEACTIVATION")
+        print("  " + "—" * 35)
+        print("  ⚠️  Notice: Deactivating this account locks all features")
+        print("      and transactions until it is reactivated.")
+        print("  1. Proceed with Deactivation")
+        print("  2. Cancel and Return\n")
 
-        choice = input("Select an option to proceed [1,2]: ")
+        choice = input("  Select option (1 or 2) → ").strip()
 
         if choice == "1":
             self.acc_status = AccStat.INACTIVE.value
-            print("\nAccount deactivated successfully.\n")
+            print("\n  [✓] Account deactivated successfully.\n")
             return
 
-        print("\nOperation cancelled. Returning...\n")
+        print("\n  [i] Operation canceled. Returning...\n")

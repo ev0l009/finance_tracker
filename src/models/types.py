@@ -44,6 +44,10 @@ class DepositTrxDict(TrxDict):
     acc_id: str
     transaction_type: str
 
+class WithdrawalTrxDict(TrxDict):
+    category: str
+    transaction_type: str
+
 class TrackerData(TypedDict):
     accounts: dict[str, Account]
     transactions: list[TrxDict]
