@@ -1,21 +1,36 @@
-"""Custom Finance Tracker exceptions"""
+"""Custom exceptions for the Finance Tracker application.
+
+Provides a unified hierarchical exception structure. All custom domain 
+errors inherit from the base TrackerException to allow generic catching 
+at the application's root loop.
+"""
+
 
 class TrackerException(Exception):
-    """Generic finace tracker exception."""
+    """Base exception for all errors raised by the Finance Tracker application."""
+
     pass
+
 
 class InvalidOptionError(TrackerException):
-    "Exception for invalid user inputs"
+    """Raised when a user provides an unrecognized or invalid menu input selection."""
+
     pass
+
 
 class NullEligibleAccountsError(TrackerException):
-    """Exception for no accounts"""
+    """Raised when an operation requires accounts to exist but none are found."""
+
     pass
+
 
 class AccNameError(TrackerException):
-    """Exceptions related to invalid and duplicate account names"""
+    """Raised when an account name is structurally invalid, reserved, or a duplicate."""
+
     pass
 
+
 class InvalidAmountError(TrackerException):
-    """Amount related errors"""
+    """Raised when a monetary value is zero, negative, or formatted incorrectly."""
+
     pass

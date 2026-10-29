@@ -1,116 +1,124 @@
-"""Core of the app. Handles tracker initialization, validations and major tracker actions."""
+"""Core workflow orchestration engine for the Finance Tracker application.
 
-from models.types import TrackerData, AccStat, AccDashState, TrxType
-from ui import get_account_type, select_acc, get_acc_dash_state
-import string
+Coordinates business workflows, updates states across system components,
+and manages transaction event histories within the application.
+"""
+
 import secrets
+import string
+from typing import Final
+
+from exceptions import AccNameError, InvalidAmountError, InvalidOptionError, NullEligibleAccountsError
 from models.account import Account
-from models.transaction import TransferTrx, DepositTrx, WithdrawalTrx
-from file_manager.storage import save_tracker_data, load_tracker_data
+from models.transaction import DepositTrx, TransferTrx, WithdrawalTrx
+from models.types import AccStat, TrackerData, TrxType, AccDashState
+from ui import get_account_type, select_acc, get_acc_dash_state
 from utils import validate_acc_name, validate_amount
-from exceptions import AccNameError, InvalidOptionError, InvalidAmountError
+
+from file_manager.storage import save_tracker_data, load_tracker_data
 
 class Tracker:
-    """Initializes tracker object and handles major actionsn like account creation, loading and saving of tracker data, funds transafer and so on."""
+    """Orchestrates high-level system functions and manages memory data sets."""
 
-    # Tracker data field constants for id generation
-    TRX = "transactions"
-    ACC = "accounts"
-    
-    def __init__(self):
-        """Initializes a tracker object and holds tracker data in memory."""
+    # Constant string anchors for memory map structural indexing
+    TRX: Final[str] = "transactions"
+    ACC: Final[str] = "accounts"
+
+    def __init__(self) -> None:
+        """Initializes an empty transient storage map for the tracker lifecycle."""
         self.data: TrackerData = {
             "accounts": {},
             "transactions": []
         }
 
-    def generate_id(self, preffix: str, field: str):
-        """Generates a unique id for accounts and transactions. Generated IDs are a mixed of uppercase, lowercase alphabets and numbers of length 5 and preffix of length 3 along with the undersocre making 9 characters in all. 
-        
-        ### Args:
-            - preffix `str`: id preffix
-            - field `str`: tracker data field
-            
-        Returns generated id as str
-        
-        ### Usage:
-        >>> trx_id = self.generate_id("trx", TRX)
-        >>> print(trx_id)
+    def generate_id(self, prefix: str, field: str) -> str:
+        """Generates a unique, non-colliding cryptographically secure identity key.
 
-        Output => trx_0qQ93"""
+        Creates an 8-character string formatted as 'prefix_XXXXX' using a random
+        pool of letters and numbers. Employs a non-recursive loop to safely prevent
+        identifier collisions.
 
-        # To collect all possible range of characters
+        Args:
+            prefix: The tracking indicator category name (e.g., 'acc', 'trx').
+            field: The structural field name within tracking storage datasets.
+
+        Returns:
+            str: A globally unique, non-colliding identity string.
+        """
         pool = string.ascii_letters + string.digits
-
-        suffix = ''.join(secrets.choice(pool) for _ in range(5))
         
-        gen_id = f"{preffix}_{suffix}"
+        while True:
+            suffix = "".join(secrets.choice(pool) for _ in range(5))
+            gen_id = f"{prefix}_{suffix}"
 
-        # To check for duplicates
-        while gen_id in self.data[field]:
-            self.generate_id(preffix, field)
-        return gen_id
+            # Verify structural isolation uniqueness to prevent duplicates
+            if field == self.ACC and gen_id not in self.data["accounts"]:
+                return gen_id
+            
+            if field == self.TRX:
+                # Deduplicate transactions list tracking records
+                if not any(trx["id"] == gen_id for trx in self.data["transactions"]):
+                    return gen_id
 
-    def create_account(self):
-        """Handles account creation and some validation."""
-
+    def create_account(self) -> None:
+        """Guides user input workflows to validate and construct a new Account."""
         print("\n  ACCOUNT CREATION")
         print("  " + "—" * 20)
 
-        # To get account id and names for duplication check
-        acc_map = {
-            acc_id: acc.acc_name
-            for acc_id, acc in self.data["accounts"].items()
+        # Build map constraint targets to accurately prevent name collisions
+        existing_names = {
+            acc.id: acc.acc_name
+            for acc in self.data["accounts"].values()
         }
 
-        acc_name = input("  Enter account name → ").strip()
+        raw_name = input("  Enter account name → ").strip()
         try:
-            valid_acc_name = validate_acc_name(acc_name, acc_map)
+            valid_acc_name = validate_acc_name(raw_name, existing_names)
         except AccNameError as err:
-            print(err)
+            print(f"\n  [!] Error: {err}")
             return
-        
+
         try:
             acc_type = get_account_type()
         except InvalidOptionError as err:
-            print(err)
+            print(f"\n  [!] Selection Error: {err}")
             return
 
         print("\n  [i] Press Enter to start with an empty balance ($0.00).")
-        amt = input("  Enter starting balance → ").strip()
+        raw_amount = input("  Enter starting balance → ").strip()
 
         try:
-            start_amt = validate_amount(amt)
+            start_balance = validate_amount(raw_amount)
         except InvalidAmountError as err:
-            print(err)
+            print(f"\n  [!] Validation Error: {err}")
             return
 
         new_acc_id = self.generate_id("acc", self.ACC)
-
-        new_acc = Account(
-            new_acc_id,
-            valid_acc_name,
-            acc_type,
-            start_amt
+        new_account = Account(
+            id=new_acc_id,
+            acc_name=valid_acc_name,
+            acc_type=acc_type,
+            amount=start_balance
         )
-        self.data["accounts"][new_acc_id] = new_acc
+        
+        self.data["accounts"][new_acc_id] = new_account
 
-        # To log first non-zero deposit transaction
-        if start_amt != 0:
+        # Generate a formal funding event record for non-zero opening balances
+        if start_balance > 0:
             trx_id = self.generate_id("trx", self.TRX)
-            trx = DepositTrx(
+            funding_event = DepositTrx(
                 id=trx_id,
-                amount=start_amt,
+                amount=start_balance,
                 acc_id=new_acc_id
             ).to_dict()
 
-            self.data["transactions"].append(trx)
+            self.data["transactions"].append(funding_event)
 
         print("\n  [✓] Account creation successful.\n")
 
-    def list_accounts(self):
-        """Displays a list of active accounts with a few details."""
 
+    def list_accounts(self) -> None:
+        """Renders a formatted text grid table displaying active accounts in memory."""
         print("\n  ACTIVE ACCOUNTS")
         print("  " + "—" * 58)
 
@@ -128,7 +136,12 @@ class Tracker:
         print("  " + "—" * 58)
         
         for acc in active_accounts:
-            name_trunc = acc.acc_name.title()[:14] + ".." if len(acc.acc_name) > 14 else acc.acc_name.title()
+            # Prevent grid breakage by truncating names longer than 14 characters
+            if len(acc.acc_name) > 14:
+                name_trunc = f"{acc.acc_name.title()[:14]}.."
+            else:
+                name_trunc = acc.acc_name.title()
+                
             type_str = acc.acc_type.capitalize()
             balance_str = f"${acc.balance:,.2f}"
             
@@ -136,131 +149,183 @@ class Tracker:
             
         print("  " + "—" * 58 + "\n")
 
-    def transfer(self):
-        """Handles transfer of funds between accounts."""
-
+    def transfer(self) -> None:
+        """Coordinates a secure fund transfer workflow between two active accounts."""
         print("\n  FUND TRANSFER")
         print("  " + "—" * 20)
 
-        if len(self.data["accounts"]) < 2:
-            print("  [!] Action unavailable: You need at least 2 active accounts to make a transfer.\n")
-            return
-
-        # To get account names and account ids of active accounts
-        acc_map = {
+        # Build list of active accounts eligible for transfers
+        active_acc_map = {
             acc.id: acc.acc_name
             for acc in self.data["accounts"].values()
             if acc.acc_status == AccStat.ACTIVE.value
         }
 
+        if len(active_acc_map) < 2:
+            print("  [!] Action unavailable: At least 2 active accounts are required to transfer funds.\n")
+            return
+
         try:
             sender_acc_id = select_acc(
-                acc_map,
-                "Source Account"
+                acc_map=active_acc_map,
+                heading="Source Account"
             )
-        except InvalidOptionError as err:
-            print(err)
+        except (InvalidOptionError, NullEligibleAccountsError) as err:
+            print(f"\n  [!] Selection canceled: {err}")
             return
 
         sender_acc = self.data["accounts"][sender_acc_id]
 
-        amt = input("  Enter transfer amount → ").strip()
-
+        raw_amount = input("  Enter transfer amount → ").strip()
         try:
-            transfer_amt = validate_amount(amt)
+            transfer_amt = validate_amount(raw_amount)
         except InvalidAmountError as err:
-            print(err)
+            print(f"\n  [!] Validation Error: {err}")
+            return
+
+        if transfer_amt <= 0:
+            print("\n  [!] Transaction canceled: Transfer amount must be greater than $0.00.\n")
             return
 
         if transfer_amt > sender_acc.balance:
-            print("\n  [!] Error: Limit exceeded. Excessive transfers are not allowed.\n")
+            print("\n  [!] Error: Insufficient available funds for this transfer request.\n")
             return
 
         try:
-            reciever_acc_id = select_acc(
-                acc_map, 
-                sender_acc_id,
-                "Target Account"
+            receiver_acc_id = select_acc(
+                acc_map=active_acc_map,
+                id_to_skip=sender_acc_id,
+                heading="Target Account"
             )
-        except InvalidOptionError as err:
-            print(err)
+        except (InvalidOptionError, NullEligibleAccountsError) as err:
+            print(f"\n  [!] Selection canceled: {err}")
             return
 
-        receiver_acc = self.data["accounts"][reciever_acc_id]
+        receiver_acc = self.data["accounts"][receiver_acc_id]
 
-        sender_acc.balance -= transfer_amt
-        receiver_acc.balance += transfer_amt
+        try:
+            # Enforce safety policies by leveraging our core model method behaviors
+            sender_acc.debit(transfer_amt)
+            receiver_acc.credit(transfer_amt)
+        except (PermissionError, ValueError) as domain_err:
+            print(f"\n  [!] Ledger Processing Error: {domain_err}\n")
+            return
 
+        # Generate transaction ledger items after balances are verified
         trx_id = self.generate_id("trx", self.TRX)
-
-        trx  = TransferTrx(
+        transfer_record = TransferTrx(
             id=trx_id,
             amount=transfer_amt,
             source_acc_id=sender_acc_id,
-            target_acc_id=reciever_acc_id
+            target_acc_id=receiver_acc_id
         ).to_dict()
-        self.data["transactions"].append(trx)
         
+        self.data["transactions"].append(transfer_record)
         print("\n  [✓] Transfer completed successfully.\n")
 
-    def acc_dashboard(self):
-        """Displays the account dashboard menu, routes based on state to account related actions."""
 
-        # to get account name and  acccount id
-        acc_map = {
+    def acc_dashboard(self) -> None:
+        """Manages individual account operations via an interactive navigation loop."""
+        active_acc_map = {
             acc.id: acc.acc_name
             for acc in self.data["accounts"].values()
             if acc.acc_status == AccStat.ACTIVE.value
         }
 
-        acc_id = select_acc(acc_map)
+        try:
+            acc_id = select_acc(acc_map=active_acc_map, heading="Inspect Account")
+        except (InvalidOptionError, NullEligibleAccountsError) as err:
+            print(f"\n  [!] Access Denied: {err}")
+            return
+
         acc = self.data["accounts"][acc_id]
         state = AccDashState.ACC_DASH.value
- 
+
         while state != AccDashState.RETURN.value:
             if state == AccDashState.ACC_DASH.value:
                 state = get_acc_dash_state(acc.acc_name)
 
             elif state == AccDashState.BALANCE.value:
-                acc.show_balance()
+                acc_bal = acc.balance
+                print("\n  CURRENT BALANCE")
+                print("  " + "—" * 25)
+                print(f"  Available Funds:  ${acc_bal:,.2f}")
+                print("  " + "—" * 25 + "\n")
                 state = AccDashState.ACC_DASH.value
 
             elif state == AccDashState.DEPOSIT.value:
-                dep_amt = acc.deposit()
-                if dep_amt:
-                    trx_id = self.generate_id("trx", self.TRX)
-                    trx =  DepositTrx(
-                        id=trx_id,
-                        acc_id=acc_id,
-                        amount=dep_amt
-                    ).to_dict()
-                    self.data["transactions"].append(trx)
-
+                print("\n  ACCOUNT DEPOSIT")
+                raw_amt = input("  Enter deposit amount → ").strip()
+                try:
+                    deposit_amt = validate_amount(raw_amt)
+                    if deposit_amt <= 0:
+                        print("\n  [!] Error: Deposit amount must be greater than $0.00.")
+                    else:
+                        acc.credit(deposit_amt)
+                        trx_id = self.generate_id("trx", self.TRX)
+                        deposit_record = DepositTrx(
+                            id=trx_id,
+                            acc_id=acc_id,
+                            amount=deposit_amt
+                        ).to_dict()
+                        
+                        self.data["transactions"].append(deposit_record)
+                        print(f"\n  [✓] Deposit successful. New Balance: ${acc.balance:,.2f}")
+                except (InvalidAmountError, PermissionError) as err:
+                    print(f"\n  [!] Transaction failed: {err}")
+                
                 state = AccDashState.ACC_DASH.value
 
-            elif state == AccDashState.WITHDRWAL.value:
-                result = acc.withdraw()
-                if isinstance(result, tuple):
-                    exp_amt, category = result
-                    if exp_amt and category:
+            elif state == AccDashState.WITHRAWAL.value:
+                print("\n  ACCOUNT WITHDRAWAL")
+                raw_amt = input("  Enter withdrawal amount → ").strip()
+                try:
+                    expense_amt = validate_amount(raw_amt)
+                    if expense_amt <= 0:
+                        print("\n  [!] Error: Withdrawal amount must be greater than $0.00.")
+                    elif expense_amt > acc.balance:
+                        print("\n  [!] Error: Insufficient available funds.")
+                    else:
+                        from ui import get_category  # Local inline import to avoid circular ties
+                        category = get_category()
+                        
+                        acc.debit(expense_amt)
                         trx_id = self.generate_id("trx", self.TRX)
-                        trx = WithdrawalTrx(
+                        withdrawal_record = WithdrawalTrx(
                             id=trx_id,
                             category=category,
-                            amount=exp_amt
+                            amount=expense_amt
                         ).to_dict()
-                        self.data["transactions"].append(trx)
-
+                        
+                        self.data["transactions"].append(withdrawal_record)
+                        print(f"\n  [✓] Withdrawal successful. New Balance: ${acc.balance:,.2f}")
+                except (InvalidAmountError, PermissionError, InvalidOptionError) as err:
+                    print(f"\n  [!] Transaction failed: {err}")
+                
                 state = AccDashState.ACC_DASH.value
 
             elif state == AccDashState.DEACTIVATE.value:
-                state = acc.deactivate()
+                print("\n  ACCOUNT DEACTIVATION")
+                print("  " + "—" * 35)
+                print("  ⚠️  Notice: Deactivating this account locks all features")
+                print("      until it is reactivated.")
+                print("  1. Proceed with Deactivation")
+                print("  2. Cancel and Return\n")
+                
+                choice = input("  Select option (1-2) → ").strip()
+                if choice == "1":
+                    success = acc.deactivate_account()
+                    if success:
+                        print("\n  [✓] Account deactivated successfully.\n")
+                        state = AccDashState.RETURN.value
+                    else:
+                        print("\n  [!] Error: Account must be empty ($0.00) before deactivation.\n")
+                        state = AccDashState.ACC_DASH.value
+                else:
+                    state = AccDashState.ACC_DASH.value
 
-        return
-        
-    def list_transactions(self):
-        """Displays a list of all transactions."""
-
+    def list_transactions(self) -> None:
+        """Renders a structured grid report of historical transaction records."""
         if not self.data["transactions"]:
             print("\n  [!] No transactions found in this ledger.\n")
             return
@@ -271,12 +336,14 @@ class Tracker:
         print("  " + "—" * 45)
 
         for trx in self.data["transactions"]:
-            trx_id = trx['id']
-            trx_type = trx['transaction_type'].capitalize()
+            trx_id = trx["id"]
+            trx_type = trx["transaction_type"].capitalize()
             
-            # Add clear structural visual signs for financial directions
-            if trx['transaction_type'] == TrxType.DEPOSIT.value:
+            # Explicit directional labeling based on specific financial context types
+            if trx["transaction_type"] == TrxType.DEPOSIT.value:
                 amt_str = f"+${trx['amount']:,.2f}"
+            elif trx["transaction_type"] == TrxType.TRANSFER.value:
+                amt_str = f"⇄ ${trx['amount']:,.2f}"
             else:
                 amt_str = f"-${trx['amount']:,.2f}"
 
@@ -284,30 +351,24 @@ class Tracker:
 
         print("  " + "—" * 45 + "\n")
 
-    def reports(self):
-        """Displays a concise overview of user financial legder."""
-
-        active_accs: list[Account] = [
-            acc
-            for acc in self.data["accounts"].values()
+    def reports(self) -> None:
+        """Generates comprehensive aggregated summaries of global accounting metrics."""
+        active_accs = [
+            acc for acc in self.data["accounts"].values()
             if acc.acc_status == AccStat.ACTIVE.value
         ]
 
         net_balance = sum(acc.balance for acc in active_accs)
-
         total_income = sum(
-            trx["amount"] 
-            for trx in self.data["transactions"] 
-            if trx["transaction_type"] == TrxType.DEPOSIT.value
+            t["amount"] for t in self.data["transactions"]
+            if t["transaction_type"] == TrxType.DEPOSIT.value
         )
-
         total_expense = sum(
-            trx["amount"] 
-            for trx in self.data["transactions"] 
-            if trx["transaction_type"] == TrxType.WITHDRAW.value
+            t["amount"] for t in self.data["transactions"]
+            if t["transaction_type"] == TrxType.WITHDRAW.value
         )
 
-        expense_category = {}
+        expense_category: dict[str, int] = {}
         for trx in self.data["transactions"]:
             if trx["transaction_type"] == TrxType.WITHDRAW.value:
                 cat = trx["category"].title()
@@ -331,7 +392,8 @@ class Tracker:
                 
         print("  " + "—" * 35 + "\n")
 
-    def reactivate_acc(self):
+    def reactivate_acc(self) -> None:
+        """Prompts for and safely activates a disabled account instance."""
         inactive_accs_map = {
             acc_id: acc.acc_name
             for acc_id, acc in self.data["accounts"].items()
@@ -344,22 +406,25 @@ class Tracker:
 
         try:
             inactive_acc_id = select_acc(
-                inactive_accs_map,
-                "ACCOUNT REACTIVATION"
+                acc_map=inactive_accs_map,
+                heading="Account Reactivation"
             )
-        except InvalidOptionError as err:
-            print(err)
+        except (InvalidOptionError, NullEligibleAccountsError) as err:
+            print(f"\n  [!] Activation Canceled: {err}")
             return
 
         acc = self.data["accounts"][inactive_acc_id]
         
-        acc.reactivate()
-        print(f"\n  [✓] Account '{acc.acc_name}' (ID: {acc.id}) has been successfully reactivated!\n")
+        try:
+            acc.reactivate()
+            print(f"\n  [✓] Account '{acc.acc_name}' (ID: {acc.id}) successfully reactivated!\n")
+        except ValueError as err:
+            print(f"\n  [!] State Conflict: {err}")
     
-    def save(self):
-        """Saves tracker data"""
+    def save(self) -> None:
+        """Serializes and saves live records to external JSON storage file pools."""
         save_tracker_data(self.data)
 
-    def load(self):
-        """Loads tracker data"""
+    def load(self) -> None:
+        """Hydrates the application layer using files retrieved from storage layers."""
         self.data = load_tracker_data()

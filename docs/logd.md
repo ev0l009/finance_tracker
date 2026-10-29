@@ -1,0 +1,1 @@
+Design Choice Note: Replaced a traditional nested while-loop logic with a simplified State Pattern (MenuState Enum). This decouples individual menu features from the orchestrator, eliminates raw string literal bugs, and ensures that adding a new menu option only requires mapping a new enum state.

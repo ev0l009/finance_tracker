@@ -1,59 +1,65 @@
-# I opted for a state pattern machine for the app flow. It's pretty direct and concise.
+"""Main entry point for the Finance Tracker application.
 
-"""Main entry point to app."""
-# To get required menu states
-from models.types import MenuState
-# To update menu state
-from ui import get_dashboard_opt
-# to initialize tracker object
+This module handles the main application lifecycle, state transitions, 
+and user interface routing using a simplified State Pattern.
+"""
+
 from models.tracker import Tracker
+from models.types import MenuState
+from ui import get_dashboard_opt
 
-def tracker_runner():
-    """Runs the finance tracker menu loop"""
 
+def tracker_runner() -> None:
+    """Runs the core application loop and manages menu state transitions.
+
+    Initializes the system tracker, loads existing user data, routes the user 
+    to the correct application screen based on the current state, and saves 
+    all data securely upon exiting.
+    """
     tracker = Tracker()
-
-    # Default menu state to display menu when program runs
-    state = MenuState.DASHBOARD.value
-
-    # To load tracker data
     tracker.load()
 
-    # App/Menu loop
-    while state != MenuState.EXIT.value:
-        if state == MenuState.DASHBOARD.value:
-            state = get_dashboard_opt()
+    # Initialise the loop with the main dashboard state
+    current_state = MenuState.DASHBOARD.value
 
-        elif state == MenuState.CREATE_ACCOUNT.value:
+    # Core Application Loop
+    while current_state != MenuState.EXIT.value:
+        
+        if current_state == MenuState.DASHBOARD.value:
+            current_state = get_dashboard_opt()
+
+        elif current_state == MenuState.CREATE_ACCOUNT.value:
             tracker.create_account()
-            state = MenuState.DASHBOARD.value
+            current_state = MenuState.DASHBOARD.value
 
-        elif state == MenuState.LIST_ACCOUNTS.value:
+        elif current_state == MenuState.LIST_ACCOUNTS.value:
             tracker.list_accounts()
-            state = MenuState.DASHBOARD.value
+            current_state = MenuState.DASHBOARD.value
 
-        elif state == MenuState.TRANSFER.value:
+        elif current_state == MenuState.TRANSFER.value:
             tracker.transfer()
-            state = MenuState.DASHBOARD.value
+            current_state = MenuState.DASHBOARD.value
 
-        elif state == MenuState.ACC_DASHBOARD.value:
+        elif current_state == MenuState.ACC_DASHBOARD.value:
             tracker.acc_dashboard()
-            state = MenuState.DASHBOARD.value
+            current_state = MenuState.DASHBOARD.value
 
-        elif state == MenuState.REACTIVATE_ACC.value:
+        elif current_state == MenuState.REACTIVATE_ACC.value:
             tracker.reactivate_acc()
-            state = MenuState.DASHBOARD.value
+            current_state = MenuState.DASHBOARD.value
 
-        elif state == MenuState.TRANSACTIONS.value:
+        elif current_state == MenuState.TRANSACTIONS.value:
             tracker.list_transactions()
-            state = MenuState.DASHBOARD.value
+            current_state = MenuState.DASHBOARD.value
 
-        elif state == MenuState.REPORTS.value:
+        elif current_state == MenuState.REPORTS.value:
             tracker.reports()
-            state = MenuState.DASHBOARD.value
+            current_state = MenuState.DASHBOARD.value
     
-    # To save tracker data as program closes.
+    # Clean up and data persistence on exit
     tracker.save()
     print("  • Exiting system...")
- 
-tracker_runner()
+
+
+if __name__ == "__main__":
+    tracker_runner()
