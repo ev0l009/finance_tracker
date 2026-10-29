@@ -4,6 +4,26 @@ A lightweight, robust command-line financial ledger application built with moder
 
 ---
 
+## ✨ Application Features
+
+The Finance Tracker CLI provides a comprehensive command-line financial ecosystem divided into two key operational scopes:
+
+### 🏦 Portfolio & Account Lifecycle Management
+*   **Multi-Account Tracking:** Supports independent account lifecycles mapped to custom aliases.
+*   **Diverse Storage Profiles:** Classifies capital sources into dedicated structures (`Bank`, `Cash`, `Savings`, `Mobile Money`).
+*   **Asset Safety Invariants:** Enforces automatic validation rules to completely prevent account balances from slipping below `$0.00`.
+*   **Granular Inspection Sub-Menus:** Opens an isolated sub-dashboard for any chosen account to check balances, fund capital, or withdraw assets.
+*   **Secure Account Locking:** Supports conditional account deactivation (only allowed if the target balance is exactly `$0.00`) and easy reactivation workflows.
+
+### 💸 Transaction Pipelines & Financial Analytics
+*   **Immutable Transaction Log:** Generates unique crypto-secure tracking IDs (`trx_XXXXX`) to maintain a historically permanent record of every deposit, withdrawal, and transfer.
+*   **Internal Fund Transfers:** Coordinates cross-account transfers with strict multi-account balance validation.
+*   **Categorized Expense Tracking:** Segments withdrawals by commercial channels (`Food`, `Bills`, `Transport`, `Airtime`, `Health`, `Shopping`, `Entertainment`, `Others`).
+*   **Global Overview Reporting:** Aggregates real-time net worth totals, global inflow tracking, and aggregate outlays.
+*   **Dynamic Expenditure Visuals:** Automatically compiles and sorts out-of-pocket spending into a clean category-by-category breakdown table.
+
+---
+
 ## 🚀 Key Architectural Strengths
 
 *   **Decoupled Architecture (SoC):** Pure separation of concerns. Domain entities (`Account`, `Transaction`) process financial validation variants and state mutations without any awareness of terminal I/O or printing mechanics.
