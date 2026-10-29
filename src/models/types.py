@@ -37,6 +37,7 @@ class MenuState(Enum):
     ACC_DASHBOARD = "acc_dashboard"
     TRANSACTIONS = "transactions"
     REPORTS = "reports"
+    REACTIVATE_ACC = "reactivate"
 
 class AccDashState(Enum):
     """Used to define account dashboard state that determines where you are at anypoint in when inspecting an account.

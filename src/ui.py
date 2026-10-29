@@ -14,8 +14,9 @@ def get_dashboard_opt() -> str:
         "3": MenuState.TRANSFER.value,
         "4": MenuState.ACC_DASHBOARD.value,
         "5": MenuState.TRANSACTIONS.value,
-        "6": MenuState.REPORTS.value,
-        "7": MenuState.EXIT.value
+        "6": MenuState.REACTIVATE_ACC.value,
+        "7": MenuState.REPORTS.value,
+        "8": MenuState.EXIT.value
     }
  
     print("\n  FINANCE TRACKER")
@@ -25,8 +26,9 @@ def get_dashboard_opt() -> str:
     print("  3. Transfer Funds")
     print("  4. Inspect Account")
     print("  5. Transactions")
-    print("  6. Reports")
-    print("  7. Exit\n")
+    print("  6. Reactivate account")
+    print("  7. Reports")
+    print("  8. Exit\n")
     
     choice = input("  Select option (1-7) → ").strip()
 

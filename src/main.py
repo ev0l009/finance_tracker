@@ -40,6 +40,10 @@ def tracker_runner():
             tracker.acc_dashboard()
             state = MenuState.DASHBOARD.value
 
+        elif state == MenuState.REACTIVATE_ACC.value:
+            tracker.reactivate_acc()
+            state = MenuState.DASHBOARD.value
+
         elif state == MenuState.TRANSACTIONS.value:
             tracker.list_transactions()
             state = MenuState.DASHBOARD.value

@@ -23,6 +23,14 @@
             "acc_type": "cash",
             "acc_status": "active",
             "created_at": "2026-10-28T22:19:15+00:00"
+        },
+        "acc_GnT02": {
+            "id": "acc_GnT02",
+            "acc_name": "Savings Acc",
+            "balance": 0,
+            "acc_type": "savings",
+            "acc_status": "active",
+            "created_at": "2026-10-29T13:37:49+00:00"
         }
     },
     "transactions": [

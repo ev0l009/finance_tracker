@@ -216,7 +216,7 @@ class Tracker:
         acc_id = select_acc(acc_map)
         acc = self.data["accounts"][acc_id]
         state = AccDashState.ACC_DASH.value
-
+ 
         while state != AccDashState.RETURN.value:
             if state == AccDashState.ACC_DASH.value:
                 state = get_acc_dash_state(acc.acc_name)
@@ -254,8 +254,7 @@ class Tracker:
                 state = AccDashState.ACC_DASH.value
 
             elif state == AccDashState.DEACTIVATE.value:
-                acc.deactivate()
-                state = AccDashState.ACC_DASH.value
+                state = acc.deactivate()
 
         return
         
@@ -332,6 +331,30 @@ class Tracker:
                 
         print("  " + "—" * 35 + "\n")
 
+    def reactivate_acc(self):
+        inactive_accs_map = {
+            acc_id: acc.acc_name
+            for acc_id, acc in self.data["accounts"].items()
+            if acc.acc_status == AccStat.INACTIVE.value
+        }
+
+        if not inactive_accs_map:
+            print("\n  [i] There are no inactive accounts.\n")
+            return
+
+        try:
+            inactive_acc_id = select_acc(
+                inactive_accs_map,
+                "ACCOUNT REACTIVATION"
+            )
+        except InvalidOptionError as err:
+            print(err)
+            return
+
+        acc = self.data["accounts"][inactive_acc_id]
+        
+        acc.reactivate()
+        print(f"\n  [✓] Account '{acc.acc_name}' (ID: {acc.id}) has been successfully reactivated!\n")
     
     def save(self):
         """Saves tracker data"""

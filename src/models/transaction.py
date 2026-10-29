@@ -1,3 +1,5 @@
+"""Initializes transactions objects"""
+
 from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from typing import Any
@@ -8,6 +10,7 @@ def generate_timetamp() -> datetime:
 
 @dataclass(frozen=True)
 class Transaction():
+    """Base class for all transaction objects"""
     id: str
     amount: int
     timestamp: datetime | str = field(default_factory=generate_timetamp)
@@ -22,6 +25,7 @@ class Transaction():
 
 @dataclass(frozen=True, kw_only=True)
 class TransferTrx(Transaction):
+    """Transfer transaction class"""
     source_acc_id: str
     target_acc_id: str
     transaction_type: str = TrxType.TRANSFER.value
@@ -49,6 +53,7 @@ class TransferTrx(Transaction):
     
 @dataclass(frozen=True, kw_only=True)
 class DepositTrx(Transaction):
+    """Deposit transaction class"""
     acc_id: str
     transaction_type: str = TrxType.DEPOSIT.value
     
@@ -73,6 +78,7 @@ class DepositTrx(Transaction):
 
 @dataclass(frozen=True, kw_only=True)
 class WithdrawalTrx(Transaction):
+    """Withdrawal transaction class"""
     category: str
     transaction_type: str = TrxType.WITHDRAW.value
 
