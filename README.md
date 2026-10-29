@@ -143,3 +143,13 @@ Data persists as a beautifully structured ledger inside a local storage vault (`
     ]
 }
 ```
+---
+
+## 🔮 Future Roadmap & Enhancements
+
+To further elevate the user experience and expand the analytical power of the system, the following features are planned for future releases:
+
+### 🎮 UX & Session Flow Optimization
+*   **Sticky Session Navigation:** Replace the current auto-return routing with a sticky session flow, allowing users to perform multiple consecutive actions within a sub-dashboard instead of being automatically routed back to the main menu after a single successful operation.
+*   **Dynamic Console Clearing:** Integrate contextual terminal screen flushes (`os.system('cls' if os.name == 'nt' else 'clear')`) between state transitions to keep the command-line interface pristine, readable, and free of vertical scroll clutter.
+*   **Operation Abort Routes:** Implement explicit, universal escape keys (e.g., entering `q` or `0` at any prompt) so users can safely abort mid-workflow transactions without triggering exception validation warnings.
