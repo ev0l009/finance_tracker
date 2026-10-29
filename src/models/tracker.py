@@ -1,3 +1,5 @@
+"""Core of the app. Handles tracker initialization, validations and major tracker actions."""
+
 from models.types import TrackerData
 from ui import get_account_type, select_acc, get_acc_dash_state
 import string
