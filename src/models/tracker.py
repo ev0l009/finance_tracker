@@ -1,6 +1,6 @@
 """Core of the app. Handles tracker initialization, validations and major tracker actions."""
 
-from models.types import TrackerData
+from models.types import TrackerData, AccStat, AccDashState, TrxType
 from ui import get_account_type, select_acc, get_acc_dash_state
 import string
 import secrets
@@ -8,30 +8,56 @@ from models.account import Account
 from models.transaction import TransferTrx, DepositTrx, WithdrawalTrx
 from file_manager.storage import save_tracker_data, load_tracker_data
 from utils import validate_acc_name, validate_amount
-from models.types import AccStat, AccDashState, TrxType
+from exceptions import AccNameError, InvalidOptionError, InvalidAmountError
 
 class Tracker:
+    """Initializes tracker object and handles major actionsn like account creation, loading and saving of tracker data, funds transafer and so on."""
+
+    # Tracker data field constants for id generation
     TRX = "transactions"
     ACC = "accounts"
     
     def __init__(self):
+        """Initializes a tracker object and holds tracker data in memory."""
         self.data: TrackerData = {
             "accounts": {},
             "transactions": []
         }
 
     def generate_id(self, preffix: str, field: str):
+        """Generates a unique id for accounts and transactions. Generated IDs are a mixed of uppercase, lowercase alphabets and numbers of length 5 and preffix of length 3 along with the undersocre making 9 characters in all. 
+        
+        ### Args:
+            - preffix `str`: id preffix
+            - field `str`: tracker data field
+            
+        Returns generated id as str
+        
+        ### Usage:
+        >>> trx_id = self.generate_id("trx", TRX)
+        >>> print(trx_id)
+
+        Output => trx_0qQ93"""
+
+        # To collect all possible range of characters
         pool = string.ascii_letters + string.digits
+
         suffix = ''.join(secrets.choice(pool) for _ in range(5))
+        
         gen_id = f"{preffix}_{suffix}"
+
+        # To check for duplicates
         while gen_id in self.data[field]:
             self.generate_id(preffix, field)
         return gen_id
 
     def create_account(self):
+        """Handles account creation and some validation."""
+
         print("\n  ACCOUNT CREATION")
         print("  " + "—" * 20)
-        
+
+        # To get account id and names for duplication check
         acc_map = {
             acc_id: acc.acc_name
             for acc_id, acc in self.data["accounts"].items()
@@ -40,13 +66,13 @@ class Tracker:
         acc_name = input("  Enter account name → ").strip()
         try:
             valid_acc_name = validate_acc_name(acc_name, acc_map)
-        except ValueError as err:
+        except AccNameError as err:
             print(err)
             return
         
         try:
             acc_type = get_account_type()
-        except ValueError as err:
+        except InvalidOptionError as err:
             print(err)
             return
 
@@ -55,7 +81,7 @@ class Tracker:
 
         try:
             start_amt = validate_amount(amt)
-        except ValueError as err:
+        except InvalidAmountError as err:
             print(err)
             return
 
@@ -69,6 +95,7 @@ class Tracker:
         )
         self.data["accounts"][new_acc_id] = new_acc
 
+        # To log first non-zero deposit transaction
         if start_amt != 0:
             trx_id = self.generate_id("trx", self.TRX)
             trx = DepositTrx(
@@ -82,9 +109,11 @@ class Tracker:
         print("\n  [✓] Account creation successful.\n")
 
     def list_accounts(self):
+        """Displays a list of active accounts with a few details."""
+
         print("\n  ACTIVE ACCOUNTS")
         print("  " + "—" * 58)
-        
+
         active_accounts = [
             acc
             for acc in self.data["accounts"].values()
@@ -108,6 +137,8 @@ class Tracker:
         print("  " + "—" * 58 + "\n")
 
     def transfer(self):
+        """Handles transfer of funds between accounts."""
+
         print("\n  FUND TRANSFER")
         print("  " + "—" * 20)
 
@@ -115,6 +146,7 @@ class Tracker:
             print("  [!] Action unavailable: You need at least 2 active accounts to make a transfer.\n")
             return
 
+        # To get account names and account ids of active accounts
         acc_map = {
             acc.id: acc.acc_name
             for acc in self.data["accounts"].values()
@@ -126,7 +158,7 @@ class Tracker:
                 acc_map,
                 "Source Account"
             )
-        except ValueError as err:
+        except InvalidOptionError as err:
             print(err)
             return
 
@@ -136,7 +168,7 @@ class Tracker:
 
         try:
             transfer_amt = validate_amount(amt)
-        except ValueError as err:
+        except InvalidAmountError as err:
             print(err)
             return
 
@@ -150,7 +182,7 @@ class Tracker:
                 sender_acc_id,
                 "Target Account"
             )
-        except ValueError as err:
+        except InvalidOptionError as err:
             print(err)
             return
 
@@ -172,11 +204,15 @@ class Tracker:
         print("\n  [✓] Transfer completed successfully.\n")
 
     def acc_dashboard(self):
+        """Displays the account dashboard menu, routes based on state to account related actions."""
+
+        # to get account name and  acccount id
         acc_map = {
             acc.id: acc.acc_name
             for acc in self.data["accounts"].values()
             if acc.acc_status == AccStat.ACTIVE.value
         }
+
         acc_id = select_acc(acc_map)
         acc = self.data["accounts"][acc_id]
         state = AccDashState.ACC_DASH.value
@@ -224,6 +260,8 @@ class Tracker:
         return
         
     def list_transactions(self):
+        """Displays a list of all transactions."""
+
         if not self.data["transactions"]:
             print("\n  [!] No transactions found in this ledger.\n")
             return
@@ -248,6 +286,8 @@ class Tracker:
         print("  " + "—" * 45 + "\n")
 
     def reports(self):
+        """Displays a concise overview of user financial legder."""
+
         active_accs: list[Account] = [
             acc
             for acc in self.data["accounts"].values()
@@ -268,14 +308,12 @@ class Tracker:
             if trx["transaction_type"] == TrxType.WITHDRAW.value
         )
 
-        # Calculate categorical aggregates cleanly
         expense_category = {}
         for trx in self.data["transactions"]:
             if trx["transaction_type"] == TrxType.WITHDRAW.value:
                 cat = trx["category"].title()
                 expense_category[cat] = expense_category.get(cat, 0) + trx["amount"]
 
-        # 1. Macro Financial Summary Block
         print("\n  FINANCIAL REPORT OVERVIEW")
         print("  " + "—" * 35)
         print(f"  Net Total Balance:  ${net_balance:,.2f}")
@@ -283,7 +321,6 @@ class Tracker:
         print(f"  Total Expenses (-): ${total_expense:,.2f}")
         print("  " + "—" * 35)
 
-        # 2. Categorical Expense Table
         print("\n  EXPENSES BY CATEGORY")
         print("  " + "—" * 35)
         
@@ -297,7 +334,9 @@ class Tracker:
 
     
     def save(self):
+        """Saves tracker data"""
         save_tracker_data(self.data)
 
     def load(self):
+        """Loads tracker data"""
         self.data = load_tracker_data()
