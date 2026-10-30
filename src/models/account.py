@@ -9,7 +9,7 @@ from typing import Any, Self
 
 from models.types import AccDict, AccStat, AccType
 
-from exceptions import InvalidIDError, AccNameError, InvalidAccountTypeError, InvalidAmountError, InvalidAccountStatusError, ExcessDebitError, AccountDeactivatedError
+from exceptions import InvalidIDError, AccNameError, InvalidAccountTypeError, InvalidAmountError, InvalidAccountStatusError, ExcessDebitError, AccStatusError
 
 class Account:
     """Encapsulates account configurations, state constraints, and balance updates."""
@@ -122,21 +122,21 @@ class Account:
         """Increments account assets by a specified quantity.
 
         Raises:
-            AccountDeactivatedError: If the underlying account status is currently inactive.
+            AccStatusError: If the underlying account status is currently inactive.
         """
         if self.acc_status == AccStat.INACTIVE.value:
-            raise AccountDeactivatedError("Transaction rejected: Cannot credit an inactive account.")
+            raise AccStatusError("Transaction rejected: Cannot credit an inactive account.")
         self.balance += amt
 
     def debit(self, amt: int) -> None:
         """Decrements account assets by a specified quantity.
 
         Raises:
-            AccountDeactivatedError: If the account is inactive.
+            AccStatusError: If the account is inactive.
             ExcessDebitError: If the withdrawal exceeds available funds.
         """
         if self.acc_status == AccStat.INACTIVE.value:
-            raise AccountDeactivatedError("Transaction rejected: Cannot debit an inactive account.")
+            raise AccStatusError("Transaction rejected: Cannot debit an inactive account.")
         if amt > self.balance:
             raise ExcessDebitError("Transaction rejected: Insufficient available funds.")
         self.balance -= amt
@@ -156,8 +156,8 @@ class Account:
         """Restores full operational status to an inactive account instance.
 
         Raises:
-            ValueError: If the account state is already marked active.
+            AccStatusError: If the account state is already marked active.
         """
         if self.acc_status == AccStat.ACTIVE.value:
-            raise ValueError("State Conflict: Account is already active.")
+            raise AccStatusError("State Conflict: Account is already active.")
         self.acc_status = AccStat.ACTIVE.value

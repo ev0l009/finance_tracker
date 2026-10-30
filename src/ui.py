@@ -8,7 +8,7 @@ from exceptions import InvalidOptionError, NullEligibleAccountsError
 from models.types import AccDashState, AccType, MenuState
 
 
-def get_dashboard_opt() -> str:
+def get_main_menu_state() -> str:
     """Displays the main menu interface and captures the next navigation state.
 
     Returns:

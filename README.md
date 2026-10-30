@@ -175,6 +175,8 @@ The test suite ensures total adherence to the following functional business vali
 | **Input Utilities**| `test_name_too_short_raises_error`| Restricts and blocks name string creation patterns under 3 characters. |
 | **Input Utilities**| `test_name_duplicate_check` | Rejects new accounts trying to match existing active namespace keys. |
 | **Input Utilities**| `test_amount_empty_returns_zero` | Ensures blank line skips default asset entry amounts back down to zero safely. |
+| **UI Presentation** | `test_get_main_menu_state_valid_choice` | Simulates user key strings to confirm routing maps to exact MenuState enums. |
+| **UI Presentation** | `test_get_main_menu_state_invalid_choice`| Assures faulty entries fallback to DASHBOARD and print error alerts. |
 
 ---
 

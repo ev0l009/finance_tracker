@@ -8,7 +8,7 @@ import unittest
 from models.account import Account
 from models.types import AccType, AccStat
 from datetime import datetime
-from exceptions import AccNameError, InvalidIDError, InvalidAccountTypeError, InvalidAmountError, ExcessDebitError, AccountDeactivatedError
+from exceptions import AccNameError, InvalidIDError, InvalidAccountTypeError, InvalidAmountError, ExcessDebitError, AccStatusError, InvalidAccountStatusError
 
 class TestAccountInvariants(unittest.TestCase):
     """Test suite ensuring Account core data invariants remain protected."""
@@ -31,7 +31,7 @@ class TestAccountInvariants(unittest.TestCase):
         self.assertIsInstance(self.sample_acc.created_at, datetime)
         self.assertEqual(self.sample_acc.balance, 10000)
 
-    def test_account_immutable_properties(self):
+    def test_account_write_once_properties(self):
         """Ensures write-once invariants are protected."""
         with self.assertRaises(AttributeError):
             self.sample_acc.id = "acc_badOp" # type: ignore
@@ -40,7 +40,14 @@ class TestAccountInvariants(unittest.TestCase):
         with self.assertRaises(AttributeError):
             self.sample_acc.created_at = datetime.now() # type: ignore
 
-    # Test account mutable properties still expected pipelines as applied with @property setter
+    def test_account_property_setters_process_values_correctly(self):
+        """Verifies account mutable properties preserve pipeline behavior"""
+        with self.assertRaises(InvalidAmountError):
+            self.sample_acc.balance = "invalid_amount"
+        with self.assertRaises(InvalidAmountError):
+            self.sample_acc.balance = -10
+        with self.assertRaises(InvalidAccountStatusError):
+            self.sample_acc.acc_status = "invalid_account_state"
 
     def test_invalid_initialization_raises_error(self):
         """Verifies that bad configuration arguments crash safely on instantiation."""
@@ -129,11 +136,11 @@ class TestAccountInvariants(unittest.TestCase):
         self.sample_acc.acc_status = AccStat.INACTIVE.value
 
         # Credits must be rejected on inactive files
-        with self.assertRaises(AccountDeactivatedError):
+        with self.assertRaises(AccStatusError):
             self.sample_acc.credit(5000)
 
         # Debits must be rejected on inactive files
-        with self.assertRaises(AccountDeactivatedError):
+        with self.assertRaises(AccStatusError):
             self.sample_acc.debit(2000)
 
     def test_conditional_deactivation_rules(self):

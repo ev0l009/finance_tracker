@@ -6,7 +6,7 @@ and user interface routing using a simplified State Pattern.
 
 from models.tracker import Tracker
 from models.types import MenuState
-from ui import get_dashboard_opt
+from ui import get_main_menu_state
 
 
 def tracker_runner() -> None:
@@ -26,7 +26,7 @@ def tracker_runner() -> None:
     while current_state != MenuState.EXIT.value:
         
         if current_state == MenuState.DASHBOARD.value:
-            current_state = get_dashboard_opt()
+            current_state = get_main_menu_state()
 
         elif current_state == MenuState.CREATE_ACCOUNT.value:
             tracker.create_account()

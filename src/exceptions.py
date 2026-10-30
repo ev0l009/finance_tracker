@@ -55,7 +55,7 @@ class ExcessDebitError(TrackerException):
 
     pass
 
-class AccountDeactivatedError(Exception):
-    """Raised when attempting an operation on a deactivated account."""
-    
+class AccStatusError(TrackerException):
+    """Raised when attempting an operation on an account with the wrong status."""
+
     pass
