@@ -7,12 +7,20 @@ menu routing choices, fallback defaults, and boundary constraints.
 import io
 import unittest
 from unittest.mock import patch
-from models.types import MenuState
-from ui import get_main_menu_state  # Adjust import based on where your UI module sits
-
+from models.types import MenuState, AccDashState, AccType
+from ui import get_main_menu_state, get_acc_dash_state, get_account_type, select_acc
+from exceptions import InvalidOptionError, NullEligibleAccountsError
 
 class TestUserInterfaceRouting(unittest.TestCase):
     """Test suite for capturing terminal menu IO loops and state returns."""
+    def setUp(self):
+        self.acc_map = {
+            "acc_abc01": "Test Bank Acc",
+            "acc_234de": "Test Cash Acc",
+            "acc_fgh56": "Test Savings Acc",
+            "acc_789ij": "Test Mobile Acc"
+        }
+        self.empty_acc_map = {}
 
     @patch("builtins.input", return_value="1")
     def test_get_main_menu_state_valid_choice(self, mock_input) -> None:
@@ -41,4 +49,49 @@ class TestUserInterfaceRouting(unittest.TestCase):
 
         # Assert 2: Verify the UI printed out the invalid warning banner to the user
         console_output = mock_stdout.getvalue()
-        self.assertIn("Invalid selection. Try again...", console_output)
+        self.assertIn("\n  [!] Invalid choice. Please try again.", console_output)
+
+
+    @patch("builtins.input", return_value="3")
+    def test_get_acc_dash_state_valid_choice(self, mock_input):
+        selected_state = get_acc_dash_state("Test Acc")
+        self.assertEqual(selected_state, AccDashState.WITHRAWAL.value)
+
+    @patch("builtins.input", return_value="5")
+    def test_get_acc_dash_state_exit_choice(self, mock_input):
+        selected_state = get_acc_dash_state("Test Acc")
+        self.assertEqual(selected_state, AccDashState.RETURN.value)
+
+    @patch("builtins.input", return_value="invalid_selection")
+    @patch("sys.stdout", new_callable=io.StringIO)
+    def test_get_acc_dash_state_invalid_choice(self, mock_stdout, mock_input):
+        selected_state = get_acc_dash_state("Test Acc")
+        self.assertIn(selected_state, AccDashState.ACC_DASH.value)
+
+        console_output = mock_stdout.getvalue()
+        self.assertIn("\n  [!] Invalid choice. Please try again.", console_output)
+
+
+    @patch("builtins.input", return_value="3")
+    def test_get_account_type_valid_choice(self, mock_input):
+        selected_acc_type = get_account_type()
+        self.assertEqual(selected_acc_type, AccType.SAVINGS.value)
+
+    @patch("builtins.input", return_value="invalid_selection_5")
+    def test_get_account_type_invalid_choice_raises_invalid_option_error(self, mock_input):
+        with self.assertRaises(InvalidOptionError):
+            get_account_type()
+
+    @patch("builtins.input", return_value="2")
+    def test_select_acc_valid_choice(self, mock_input):
+        selected_acc_id = select_acc(self.acc_map)
+        self.assertEqual(selected_acc_id, "acc_234de")
+
+    @patch("builtins.input", return_value="invalid_selection_5")
+    def test_select_acc_invalid_choice_raises_invalid_option_error(self, mock_input):
+        with self.assertRaises(InvalidOptionError):
+            select_acc(self.acc_map)
+
+    def test_select_acc_empty_acc_map_raises_null_eligible_accounts_error(self):
+        with self.assertRaises(NullEligibleAccountsError):
+            select_acc(self.empty_acc_map)

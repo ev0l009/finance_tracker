@@ -39,7 +39,7 @@ def get_main_menu_state() -> str:
     choice = input("  Select option (1-8) → ").strip()
 
     if choice not in options:
-        print("  Invalid selection. Try again...")
+        print("\n  [!] Invalid choice. Please try again.")
         return MenuState.DASHBOARD.value
 
     return options[choice]
