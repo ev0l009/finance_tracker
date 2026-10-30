@@ -20,7 +20,7 @@ class TestAccountInvariants(unittest.TestCase):
             acc_type="bank",
             amount=50000,  # Stored as an integer ($500.00 equivalent)
         )
-
+    
     def test_account_initialization_safety(self) -> None:
         """Ensures core properties assign correctly and protect write-once invariants."""
         self.assertEqual(self.sample_account.id, "acc_Tst12")

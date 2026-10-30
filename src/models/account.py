@@ -46,7 +46,7 @@ class Account:
         self._acc_status = AccStat.ACTIVE.value
 
     # --- WRITE-ONCE INVARIANT PROPERTIES ---
-
+ 
     @property
     def id(self) -> str:
         """str: The unique, unalterable identifier for this account instance."""
