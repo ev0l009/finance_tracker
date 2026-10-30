@@ -25,6 +25,12 @@ class Account:
             raise ValueError("Account ID cannot be empty.")
         self._id = id
 
+        if not acc_name.strip():
+            raise ValueError("Account name cannot be empty.")
+        if len(acc_name.strip()) < 3:
+            raise ValueError("Account name cannot be less three characters.")
+        self.acc_name = acc_name
+
         allowed_types = {t.value for t in AccType}
         if acc_type not in allowed_types:
             raise ValueError(f"Invalid account type '{acc_type}'. Must be one of {allowed_types}")
@@ -35,7 +41,6 @@ class Account:
         else:
             self._created_at = created_at if created_at else datetime.now(timezone.utc).replace(microsecond=0)
 
-        self.acc_name = acc_name
         self.balance = amount  
         self._acc_status = AccStat.ACTIVE.value
 
@@ -65,6 +70,8 @@ class Account:
 
     @balance.setter
     def balance(self, amount: int) -> None:
+        if type(amount) is not int:
+            raise ValueError("Amount must be a valid whole number integer.")
         if amount < 0:
             raise ValueError("Account balance cannot drop below zero.")
         self._balance = amount

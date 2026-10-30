@@ -371,8 +371,8 @@ class Tracker:
         expense_category: dict[str, int] = {}
         for trx in self.data["transactions"]:
             if trx["transaction_type"] == TrxType.WITHDRAW.value:
-                cat = trx["category"].title()
-                expense_category[cat] = expense_category.get(cat, 0) + trx["amount"]
+                cat = trx["category"].title() # type: ignore
+                expense_category[cat] = expense_category.get(cat, 0) + trx["amount"] # type: ignore
 
         print("\n  FINANCIAL REPORT OVERVIEW")
         print("  " + "—" * 35)

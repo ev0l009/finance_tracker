@@ -143,6 +143,39 @@ Data persists as a beautifully structured ledger inside a local storage vault (`
     ]
 }
 ```
+
+---
+
+## 🧪 Testing Strategy & Execution Guide
+
+The application features a robust automated testing infrastructure built natively with Python's standard `unittest` library. Because the domain layers are completely decoupled from terminal console inputs, core business rules and sanitization filters can be tested instantly and repeatedly in total isolation.
+
+### 📐 Test Suite Architecture
+The automated test files are isolated within dedicated modules under the tracking directory:
+*   **`test_account.py`:** Stress-tests core financial invariants, write-once initialization settings, credit/debit transaction constraints, and operational deactivation rule sets.
+*   **`test_utils.py`:** Validates defensive data scrubbing algorithms, string trimming rules, name collision deduplication maps, integer parsing formats, and negative asset protection guards.
+
+### 🏃‍♂️ Running the Tests
+To execute the comprehensive validation suite, navigate to the project repository root folder in your terminal and fire the discovery pipeline command:
+
+```bash
+cd src
+
+python3 -m unittest discover -s tests -v
+```
+
+### 📊 Verification Target Matrix
+The test suite ensures total adherence to the following functional business validations without executing manual user interface interactions:
+
+| Component Target | Test Block Case | Expected Validation Boundary |
+| :--- | :--- | :--- |
+| **Account Model** | `test_negative_balance_invariant` | Verifies account balances can never be forced beneath zero. |
+| **Account Model** | `test_inactive_account_locks` | Confirms transaction attempts on inactive files throw `PermissionError`. |
+| **Account Model** | `test_conditional_deactivation` | Guarantees account locking is rejected if active assets remain (`> $0.00`). |
+| **Input Utilities**| `test_name_too_short_raises_error`| Restricts and blocks name string creation patterns under 3 characters. |
+| **Input Utilities**| `test_name_duplicate_check` | Rejects new accounts trying to match existing active namespace keys. |
+| **Input Utilities**| `test_amount_empty_returns_zero` | Ensures blank line skips default asset entry amounts back down to zero safely. |
+
 ---
 
 ## 🔮 Future Roadmap & Enhancements

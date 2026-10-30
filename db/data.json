@@ -3,7 +3,7 @@
         "acc_CBZc8": {
             "id": "acc_CBZc8",
             "acc_name": "Opay Acc",
-            "balance": 14500,
+            "balance": 13500,
             "acc_type": "mobile",
             "acc_status": "active",
             "created_at": "2026-10-28T22:17:48+00:00"
@@ -29,8 +29,16 @@
             "acc_name": "Savings Acc",
             "balance": 0,
             "acc_type": "savings",
-            "acc_status": "active",
+            "acc_status": "inactive",
             "created_at": "2026-10-29T13:37:49+00:00"
+        },
+        "acc_Hmpxy": {
+            "id": "acc_Hmpxy",
+            "acc_name": "Opay",
+            "balance": 5500,
+            "acc_type": "mobile",
+            "acc_status": "active",
+            "created_at": "2026-10-29T22:28:24+00:00"
         }
     },
     "transactions": [
@@ -77,6 +85,28 @@
             "timestamp": "2026-10-28T22:20:57+00:00",
             "category": "airtime",
             "transaction_type": "withdraw"
+        },
+        {
+            "id": "trx_2UcbC",
+            "amount": 1000,
+            "timestamp": "2026-10-29T22:30:11+00:00",
+            "source_acc_id": "acc_CBZc8",
+            "target_acc_id": "acc_Hmpxy",
+            "transaction_type": "transfer"
+        },
+        {
+            "id": "trx_raUZE",
+            "amount": 500,
+            "timestamp": "2026-10-29T22:31:20+00:00",
+            "category": "transport",
+            "transaction_type": "withdraw"
+        },
+        {
+            "id": "trx_7Ogg5",
+            "amount": 5000,
+            "acc_id": "acc_Hmpxy",
+            "timestamp": "2026-10-29T22:31:32+00:00",
+            "transaction_type": "deposit"
         }
     ]
 }
