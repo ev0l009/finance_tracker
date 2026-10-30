@@ -8,7 +8,7 @@ import io
 import unittest
 from unittest.mock import patch
 from models.types import MenuState, AccDashState, AccType
-from ui import get_main_menu_state, get_acc_dash_state, get_account_type, select_acc
+from ui import get_main_menu_state, get_acc_dash_state, get_account_type, select_acc, get_category
 from exceptions import InvalidOptionError, NullEligibleAccountsError
 
 class TestUserInterfaceRouting(unittest.TestCase):
@@ -82,6 +82,7 @@ class TestUserInterfaceRouting(unittest.TestCase):
         with self.assertRaises(InvalidOptionError):
             get_account_type()
 
+
     @patch("builtins.input", return_value="2")
     def test_select_acc_valid_choice(self, mock_input):
         selected_acc_id = select_acc(self.acc_map)
@@ -95,3 +96,14 @@ class TestUserInterfaceRouting(unittest.TestCase):
     def test_select_acc_empty_acc_map_raises_null_eligible_accounts_error(self):
         with self.assertRaises(NullEligibleAccountsError):
             select_acc(self.empty_acc_map)
+
+
+    @patch("builtins.input", return_value="5")
+    def test_get_category_valid_choice(self, mock_input):
+        selected_cat = get_category()
+        self.assertEqual(selected_cat, "health")
+
+    @patch("builtins.input", return_value="invalid_selection_6")
+    def test_get_category_invalid_selection_raises_invalid_option_error(self, mock_input):
+        with self.assertRaises(InvalidOptionError):
+            get_category()
