@@ -34,3 +34,18 @@ class InvalidAmountError(TrackerException):
     """Raised when a monetary value is zero, negative, or formatted incorrectly."""
 
     pass
+
+class InvalidIDError(TrackerException):
+    """Raised when an invalid identifier is given"""
+
+    pass
+
+class InvalidAccountTypeError(TrackerException):
+    """Raised when an invalid account type is given"""
+
+    pass
+
+class InvalidAccountStatusError(TrackerException):
+    """Raised when an invalid account type is given"""
+
+    pass

@@ -9,6 +9,7 @@ from typing import Any, Self
 
 from models.types import AccDict, AccStat, AccType
 
+from exceptions import InvalidIDError, AccNameError, InvalidAccountTypeError, InvalidAmountError, InvalidAccountStatusError
 
 class Account:
     """Encapsulates account configurations, state constraints, and balance updates."""
@@ -22,18 +23,18 @@ class Account:
         created_at: datetime | str | None = None,
     ):
         if not id or not id.strip():
-            raise ValueError("Account ID cannot be empty.")
+            raise InvalidIDError("Account ID cannot be empty.")
         self._id = id
 
         if not acc_name.strip():
-            raise ValueError("Account name cannot be empty.")
+            raise AccNameError("Account name cannot be empty.")
         if len(acc_name.strip()) < 3:
-            raise ValueError("Account name cannot be less three characters.")
+            raise AccNameError("Account name cannot be less three characters.")
         self.acc_name = acc_name
 
         allowed_types = {t.value for t in AccType}
         if acc_type not in allowed_types:
-            raise ValueError(f"Invalid account type '{acc_type}'. Must be one of {allowed_types}")
+            raise InvalidAccountTypeError(f"Invalid account type '{acc_type}'. Must be one of {allowed_types}")
         self._acc_type = acc_type
 
         if isinstance(created_at, str):
@@ -71,9 +72,9 @@ class Account:
     @balance.setter
     def balance(self, amount: int) -> None:
         if type(amount) is not int:
-            raise ValueError("Amount must be a valid whole number integer.")
+            raise InvalidAmountError("Amount must be a valid whole number integer.")
         if amount < 0:
-            raise ValueError("Account balance cannot drop below zero.")
+            raise InvalidAmountError("Account balance cannot drop below zero.")
         self._balance = amount
 
     @property
@@ -85,7 +86,7 @@ class Account:
     def acc_status(self, value: str) -> None:
         allowed_statuses = {status.value for status in AccStat}
         if value not in allowed_statuses:
-            raise ValueError(f"Invalid account status. Must be one of {allowed_statuses}")
+            raise InvalidAccountStatusError(f"Invalid account status. Must be one of {allowed_statuses}")
         self._acc_status = value
 
     # --- FACTORY & SERIALIZATION ---
