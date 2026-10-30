@@ -49,3 +49,13 @@ class InvalidAccountStatusError(TrackerException):
     """Raised when an invalid account type is given"""
 
     pass
+
+class ExcessDebitError(TrackerException):
+    """Raises when an excess debit is attempted."""
+
+    pass
+
+class AccountDeactivatedError(Exception):
+    """Raised when attempting an operation on a deactivated account."""
+    
+    pass

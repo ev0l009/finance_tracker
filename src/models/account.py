@@ -9,7 +9,7 @@ from typing import Any, Self
 
 from models.types import AccDict, AccStat, AccType
 
-from exceptions import InvalidIDError, AccNameError, InvalidAccountTypeError, InvalidAmountError, InvalidAccountStatusError
+from exceptions import InvalidIDError, AccNameError, InvalidAccountTypeError, InvalidAmountError, InvalidAccountStatusError, ExcessDebitError, AccountDeactivatedError
 
 class Account:
     """Encapsulates account configurations, state constraints, and balance updates."""
@@ -122,23 +122,23 @@ class Account:
         """Increments account assets by a specified quantity.
 
         Raises:
-            PermissionError: If the underlying account status is currently inactive.
+            AccountDeactivatedError: If the underlying account status is currently inactive.
         """
         if self.acc_status == AccStat.INACTIVE.value:
-            raise PermissionError("Transaction rejected: Cannot credit an inactive account.")
+            raise AccountDeactivatedError("Transaction rejected: Cannot credit an inactive account.")
         self.balance += amt
 
     def debit(self, amt: int) -> None:
         """Decrements account assets by a specified quantity.
 
         Raises:
-            PermissionError: If the account is inactive.
-            ValueError: If the withdrawal exceeds available funds.
+            AccountDeactivatedError: If the account is inactive.
+            ExcessDebitError: If the withdrawal exceeds available funds.
         """
         if self.acc_status == AccStat.INACTIVE.value:
-            raise PermissionError("Transaction rejected: Cannot debit an inactive account.")
+            raise AccountDeactivatedError("Transaction rejected: Cannot debit an inactive account.")
         if amt > self.balance:
-            raise ValueError("Transaction rejected: Insufficient available funds.")
+            raise ExcessDebitError("Transaction rejected: Insufficient available funds.")
         self.balance -= amt
 
     def deactivate_account(self) -> bool:

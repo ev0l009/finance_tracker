@@ -8,7 +8,7 @@ import unittest
 from models.account import Account
 from models.types import AccType, AccStat
 from datetime import datetime
-from exceptions import AccNameError, InvalidIDError, InvalidAccountTypeError, InvalidAmountError
+from exceptions import AccNameError, InvalidIDError, InvalidAccountTypeError, InvalidAmountError, ExcessDebitError, AccountDeactivatedError
 
 class TestAccountInvariants(unittest.TestCase):
     """Test suite ensuring Account core data invariants remain protected."""
@@ -98,7 +98,7 @@ class TestAccountInvariants(unittest.TestCase):
             Account(
                 id="acc_e5Es5",
                 acc_name="test",
-                acc_type="digital", 
+                acc_type=AccType.MOBILE.value,
                 amount=-1000
             )
 
@@ -107,6 +107,8 @@ class TestAccountInvariants(unittest.TestCase):
         self.sample_acc.credit(1000)
         self.assertEqual(self.sample_acc.balance, 11000)
 
+    # Test that deactivated accounts cannot perform any transactions
+
     def test_debit_decreases_balance_correctly(self):
         """Verifies debit transactions decrement available balances cleanly."""
         self.sample_acc.debit(5000)
@@ -114,8 +116,22 @@ class TestAccountInvariants(unittest.TestCase):
 
     def test_negative_balance_invariant_enforcement(self):
         """Guarantees balances can never be forced beneath zero."""
-        with self.assertRaises(ValueError):
+        # Setting property balance beneath zero directly should raise a ExcessDebitError
+        with self.assertRaises(InvalidAmountError):
             self.sample_acc.balance = -1
 
-        with self.assertRaises(ValueError):
+        # Debiting more than available assets should raise a InvalidAmountError
+        with self.assertRaises(ExcessDebitError):
             self.sample_acc.debit(100000)
+
+    def test_inactive_account_locks_transactions(self):
+        """Verifies that locking/deactivating an account blocks credits and debits."""
+        self.sample_acc.acc_status = AccStat.INACTIVE.value
+
+        # Credits must be rejected on inactive files
+        with self.assertRaises(AccountDeactivatedError):
+            self.sample_acc.credit(5000)
+
+        # Debits must be rejected on inactive files
+        with self.assertRaises(AccountDeactivatedError):
+            self.sample_acc.debit(2000)
