@@ -135,3 +135,18 @@ class TestAccountInvariants(unittest.TestCase):
         # Debits must be rejected on inactive files
         with self.assertRaises(AccountDeactivatedError):
             self.sample_acc.debit(2000)
+
+    def test_conditional_deactivation_rules(self):
+        """Ensures an account can only be deactivated if its balance is exactly zero."""
+        # Balance is currently 10000 -> Should fail deactivation
+        can_deactivate = self.sample_acc.deactivate_account()
+        self.assertFalse(can_deactivate)
+        self.assertEqual(self.sample_acc.acc_status, "active")
+
+        # Empty the balance out
+        self.sample_acc.debit(10000)
+        
+        # Balance is now 0 -> Should successfully deactivate
+        can_deactivate_now = self.sample_acc.deactivate_account()
+        self.assertTrue(can_deactivate_now)
+        self.assertEqual(self.sample_acc.acc_status, "inactive")
