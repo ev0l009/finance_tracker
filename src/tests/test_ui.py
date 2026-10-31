@@ -7,20 +7,32 @@ menu routing choices, fallback defaults, and boundary constraints.
 import io
 import unittest
 from unittest.mock import patch
-from models.types import MenuState, AccDashState, AccType
-from ui import get_main_menu_state, get_acc_dash_state, get_account_type, select_acc, get_category
+
 from exceptions import InvalidOptionError, NullEligibleAccountsError
+from models.types import AccDashState, AccType, MenuState
+from ui import (
+    get_acc_dash_state,
+    get_account_type,
+    get_category,
+    get_main_menu_state,
+    select_acc,
+)
+
 
 class TestUserInterfaceRouting(unittest.TestCase):
     """Test suite for capturing terminal menu IO loops and state returns."""
-    def setUp(self):
+
+    def setUp(self) -> None:
+        """Initializes mock memory records for multi-account selection filters."""
         self.acc_map = {
             "acc_abc01": "Test Bank Acc",
             "acc_234de": "Test Cash Acc",
             "acc_fgh56": "Test Savings Acc",
-            "acc_789ij": "Test Mobile Acc"
+            "acc_789ij": "Test Mobile Acc",
         }
         self.empty_acc_map = {}
+
+    # --- MAIN DASHBOARD NAVIGATION ROUTING TESTS ---
 
     @patch("builtins.input", return_value="1")
     def test_get_main_menu_state_valid_choice(self, mock_input) -> None:
@@ -39,7 +51,9 @@ class TestUserInterfaceRouting(unittest.TestCase):
 
     @patch("builtins.input", return_value="invalid_selection_9")
     @patch("sys.stdout", new_callable=io.StringIO)
-    def test_get_main_menu_state_invalid_choice_handling(self, mock_stdout, mock_input) -> None:
+    def test_get_main_menu_state_invalid_choice_handling(
+        self, mock_stdout, mock_input
+    ) -> None:
         """Verifies that an out-of-bounds user string falls back to the main dashboard state."""
         # Act: Pass bad key input, intercepting console prints
         selected_state = get_main_menu_state()
@@ -49,61 +63,89 @@ class TestUserInterfaceRouting(unittest.TestCase):
 
         # Assert 2: Verify the UI printed out the invalid warning banner to the user
         console_output = mock_stdout.getvalue()
-        self.assertIn("\n  [!] Invalid choice. Please try again.", console_output)
+        self.assertIn("  Invalid selection. Try again...", console_output)
 
+    # --- ACCOUNT SUB-DASHBOARD MANAGEMENT TESTS ---
 
     @patch("builtins.input", return_value="3")
-    def test_get_acc_dash_state_valid_choice(self, mock_input):
+    def test_get_acc_dash_state_valid_choice(self, mock_input) -> None:
+        """Verifies valid sub-menu choices accurately resolve to target operation states."""
         selected_state = get_acc_dash_state("Test Acc")
         self.assertEqual(selected_state, AccDashState.WITHRAWAL.value)
 
     @patch("builtins.input", return_value="5")
-    def test_get_acc_dash_state_exit_choice(self, mock_input):
+    def test_get_acc_dash_state_exit_choice(self, mock_input) -> None:
+        """Ensures choice 5 cleanly backs out of individual account monitoring views."""
         selected_state = get_acc_dash_state("Test Acc")
         self.assertEqual(selected_state, AccDashState.RETURN.value)
 
     @patch("builtins.input", return_value="invalid_selection")
     @patch("sys.stdout", new_callable=io.StringIO)
-    def test_get_acc_dash_state_invalid_choice(self, mock_stdout, mock_input):
+    def test_get_acc_dash_state_invalid_choice(
+        self, mock_stdout, mock_input
+    ) -> None:
+        """Verifies that bad input preserves state context and alerts the client loop."""
         selected_state = get_acc_dash_state("Test Acc")
-        self.assertIn(selected_state, AccDashState.ACC_DASH.value)
+        self.assertEqual(selected_state, AccDashState.ACC_DASH.value)
 
         console_output = mock_stdout.getvalue()
         self.assertIn("\n  [!] Invalid choice. Please try again.", console_output)
 
+    # --- FINANCIAL TYPE SPECIFICATION SELECTION TESTS ---
 
     @patch("builtins.input", return_value="3")
-    def test_get_account_type_valid_choice(self, mock_input):
+    def test_get_account_type_valid_choice(self, mock_input) -> None:
+        """Ensures matching type options successfully unpack valid underlying AccType strings."""
         selected_acc_type = get_account_type()
         self.assertEqual(selected_acc_type, AccType.SAVINGS.value)
 
     @patch("builtins.input", return_value="invalid_selection_5")
-    def test_get_account_type_invalid_choice_raises_invalid_option_error(self, mock_input):
+    def test_get_account_type_invalid_choice_raises_invalid_option_error(
+        self, mock_input
+    ) -> None:
+        """Guarantees unrecognized structural account type options raise validation alerts."""
         with self.assertRaises(InvalidOptionError):
             get_account_type()
 
+    # --- ACCOUNT REGISTRY SELECTION INTERACTION TESTS ---
 
     @patch("builtins.input", return_value="2")
-    def test_select_acc_valid_choice(self, mock_input):
+    def test_select_acc_valid_choice(self, mock_input) -> None:
+        """Confirms selecting a numbered list index extracts the accurate target metadata ID key."""
         selected_acc_id = select_acc(self.acc_map)
         self.assertEqual(selected_acc_id, "acc_234de")
 
     @patch("builtins.input", return_value="invalid_selection_5")
-    def test_select_acc_invalid_choice_raises_invalid_option_error(self, mock_input):
+    def test_select_acc_invalid_choice_raises_invalid_option_error(
+        self, mock_input
+    ) -> None:
+        """Ensures selection attempts out of boundaries trigger programmatic errors."""
         with self.assertRaises(InvalidOptionError):
             select_acc(self.acc_map)
 
-    def test_select_acc_empty_acc_map_raises_null_eligible_accounts_error(self):
+    def test_select_acc_empty_acc_map_raises_null_eligible_accounts_error(
+        self,
+    ) -> None:
+        """Guarantees empty lookups avoid empty rendering traps, exiting defensively early."""
         with self.assertRaises(NullEligibleAccountsError):
             select_acc(self.empty_acc_map)
 
+    # --- EXPENSE CATEGORIZATION FILTER TESTS ---
 
     @patch("builtins.input", return_value="5")
-    def test_get_category_valid_choice(self, mock_input):
+    def test_get_category_valid_choice(self, mock_input) -> None:
+        """Validates entry keys unpack the correct matching transaction type categories."""
         selected_cat = get_category()
         self.assertEqual(selected_cat, "health")
 
     @patch("builtins.input", return_value="invalid_selection_6")
-    def test_get_category_invalid_selection_raises_invalid_option_error(self, mock_input):
+    def test_get_category_invalid_selection_raises_invalid_option_error(
+        self, mock_input
+    ) -> None:
+        """Confirms bad strings typed into category assignments abort workflows early."""
         with self.assertRaises(InvalidOptionError):
             get_category()
+
+
+if __name__ == "__main__":
+    unittest.main()

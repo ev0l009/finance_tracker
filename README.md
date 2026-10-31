@@ -177,6 +177,18 @@ The test suite ensures total adherence to the following functional business vali
 | **Input Utilities**| `test_amount_empty_returns_zero` | Ensures blank line skips default asset entry amounts back down to zero safely. |
 | **UI Presentation** | `test_get_main_menu_state_valid_choice` | Simulates user key strings to confirm routing maps to exact MenuState enums. |
 | **UI Presentation** | `test_get_main_menu_state_invalid_choice`| Assures faulty entries fallback to DASHBOARD and print error alerts. |
+| :--- | :--- | :--- |
+| **Transaction Model** | `test_transaction_immutability` | Guarantees frozen entities block post-instantiation state mutations. |
+| **Transaction Model** | `test_transfer_hydration_cycle` | Confirms complete 1:1 integrity for data serialization roundtrips. |
+| :--- | :--- | :--- |
+| **Account Model** | `test_negative_balance_invariant` | Verifies account balances can never be forced beneath zero. |
+| **Account Model** | `test_inactive_account_locks` | Confirms transaction attempts on inactive files throw `PermissionError`. |
+| **Input Utilities**| `test_name_too_short_raises_error`| Restricts and blocks name string creation patterns under 3 characters. |
+| **UI Presentation** | `test_get_main_menu_state_invalid`| Assures faulty entries fallback to DASHBOARD and print error alerts. |
+| **Transaction Model**| `test_transaction_immutability` | Guarantees frozen entities block post-instantiation state mutations. |
+| **Storage Engine** | `test_save_tracker_data_atomic` | Verifies safe `.tmp` file generation structures and clean atomic swaps. |
+| **Tracker Core** | `test_transfer_funds_successful` | Coordinates balancing reductions and increases across distinct records. |
+| **Tracker Core** | `test_reports_aggregates_metrics` | Validates computational sum loops generate accurate financial data. |
 
 ---
 

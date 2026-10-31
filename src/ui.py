@@ -3,7 +3,7 @@
 Handles rendering menus, formatting text blocks, capturing terminal inputs,
 and routing selections cleanly back into application state flows.
 """
-
+ 
 from exceptions import InvalidOptionError, NullEligibleAccountsError
 from models.types import AccDashState, AccType, MenuState
 

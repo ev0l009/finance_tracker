@@ -6,7 +6,7 @@ deposits, and withdrawals using Python data classes.
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Self
+from typing import Self
 
 from models.types import DepositTrxDict, TransferTrxDict, TrxDict, TrxType, WithdrawalTrxDict
 
@@ -25,7 +25,7 @@ class Transaction:
     timestamp: datetime | str = field(default_factory=generate_timestamp)
 
     @classmethod
-    def parse_json(cls, data: dict[str, Any]) -> TrxDict:
+    def parse_json(cls, data: TrxDict) -> TrxDict:
         """Extracts and sanitizes base fields from a raw dictionary payload."""
         return {
             "id": data["id"],
@@ -43,7 +43,7 @@ class TransferTrx(Transaction):
     transaction_type: str = TrxType.TRANSFER.value
 
     @classmethod
-    def from_json(cls, data: dict[str, Any]) -> Self:
+    def from_json(cls, data: TransferTrxDict) -> Self:
         """Hydrates a serialized dictionary payload into a live TransferTrx instance."""
         base_data = cls.parse_json(data)
         return cls(
@@ -75,7 +75,7 @@ class DepositTrx(Transaction):
     transaction_type: str = TrxType.DEPOSIT.value
 
     @classmethod
-    def from_json(cls, data: dict[str, Any]) -> Self:
+    def from_json(cls, data: DepositTrxDict) -> Self:
         """Hydrates a serialized dictionary payload into a live DepositTrx instance."""
         base_data = cls.parse_json(data)
         return cls(
@@ -105,7 +105,7 @@ class WithdrawalTrx(Transaction):
     transaction_type: str = TrxType.WITHDRAW.value
 
     @classmethod
-    def from_json(cls, data: dict[str, Any]) -> Self:
+    def from_json(cls, data: WithdrawalTrxDict) -> Self:
         """Hydrates a serialized dictionary payload into a live WithdrawalTrx instance."""
         base_data = cls.parse_json(data)
         return cls(
