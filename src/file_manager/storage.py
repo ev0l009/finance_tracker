@@ -22,7 +22,7 @@ def initialize() -> None:
     """Creates the database directory if it does not already exist."""
     DB_DIR.mkdir(exist_ok=True, parents=True)
 
-
+ 
 def save_tracker_data(tracker_data: TrackerData) -> None:
     """Serializes in-memory tracker state and saves it atomically to a JSON file.
 

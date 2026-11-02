@@ -63,7 +63,7 @@ class TestUserInterfaceRouting(unittest.TestCase):
 
         # Assert 2: Verify the UI printed out the invalid warning banner to the user
         console_output = mock_stdout.getvalue()
-        self.assertIn("  Invalid selection. Try again...", console_output)
+        self.assertIn("\n  [!] Invalid choice. Please try again.", console_output)
 
     # --- ACCOUNT SUB-DASHBOARD MANAGEMENT TESTS ---
 
