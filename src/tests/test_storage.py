@@ -1,7 +1,6 @@
 """Unit tests for the Data Persistence storage engine.
 
-Verifies folder initializations, file loading failures, data corruption recovery,
-and atomic JSON serialization workflows within a mocked filesystem sandbox.
+Verifies folder initializations, file loading failures, data corruption recovery, and atomic JSON serialization workflows within a mocked filesystem sandbox.
 """
 
 import unittest

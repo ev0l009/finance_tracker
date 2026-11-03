@@ -73,11 +73,18 @@ graph TD
     ├── file_manager/
     │   └── storage.py                    # Atomic JSON serialization engine
     │
-    └── models/
-        ├── account.py                    # Account model & business invariant setters
-        ├── tracker.py                    # Core system orchestrator and engine flow
-        ├── transaction.py                # Immutable ledger entries (Deposit/Withdraw/Transfer)
-        └── types.py                      # Global schema declarations (Enums, TypedDict)
+    ├── models/
+    │   ├── account.py                    # Account model & business invariant setters
+    │   ├── tracker.py                    # Core system orchestrator and engine flow
+    │   ├── transaction.py                # Immutable ledger entries (Deposit/Withdraw/Transfer)
+    │   └── types.py                      # Global schema declarations (Enums, TypedDict)
+    └── tests/
+        ├── test_account.py               # Tests for the Account domain model.
+        ├── test_storage.py               # Tests for the Data Persistence storage engine.
+        ├── test_tracker.py               # Tests for the Tracker core orchestration engine.
+        ├── test_transaction.py           # Tests for the Transaction domain models.
+        ├── test_ui.py                    # Tests for the User Interface presentation layer.
+        └── test_utils.py                 # Tests for input validation utilities.
 ```
 
 ---
@@ -99,7 +106,6 @@ graph TD
    ```bash
    python main.py
    ```
-
 ---
 
 ## 🔒 Custom Domain Safety Grid
@@ -113,6 +119,11 @@ The backend raises precise domain boundaries when processing operations, prevent
 | `NullEligibleAccountsError`| Raised when an index filter passes empty sets (e.g. transfer with < 2 active accs). |
 | `AccNameError` | Triggered if name inputs are empty, `< 3` characters, or register as duplicates. |
 | `InvalidAmountError` | Thrown when parsing non-integers, negative currency values, or empty strings. |
+| `InvalidIDError` | Thrown when an invalid identifier is given. |
+| `InvalidAccountTypeError` | Raised when an invalid account type is given |
+| `InvalidAccountStatusError` | Triggered when an invalid account status is given |
+| `ExcessDebitError` | Raises when an excess debit is attempted. |
+| `AccStatusError` | Raised when attempting an operation on an account with the wrong status. |
 
 ---
 
@@ -143,7 +154,6 @@ Data persists as a beautifully structured ledger inside a local storage vault (`
     ]
 }
 ```
-
 ---
 
 ## 🧪 Testing Strategy & Execution Guide
@@ -154,6 +164,11 @@ The application features a robust automated testing infrastructure built nativel
 The automated test files are isolated within dedicated modules under the tracking directory:
 *   **`test_account.py`:** Stress-tests core financial invariants, write-once initialization settings, credit/debit transaction constraints, and operational deactivation rule sets.
 *   **`test_utils.py`:** Validates defensive data scrubbing algorithms, string trimming rules, name collision deduplication maps, integer parsing formats, and negative asset protection guards.
+*   **`test_storage.py`:** Verifies folder initializations, file loading failures, data corruption recovery, and atomic JSON serialization workflows within a mocked filesystem sandbox.
+*   **`test_tracker.py`:** Verifies non-colliding ID generation, account initialization pipelines, cross-account transfer validation rules, financial reporting aggregates, 
+and state synchronization flows.
+*   **`test_transaction.py`:** Verifies immutability constraints, JSON schema hydration, serialization mappings, and auto-generated timestamp behaviors.
+*   **`test_ui.py`:** Simulates terminal user keypresses and captures print stream outputs to verify menu routing choices, fallback defaults, and boundary constraints.
 
 ### 🏃‍♂️ Running the Tests
 To execute the comprehensive validation suite, navigate to the project repository root folder in your terminal and fire the discovery pipeline command:
@@ -163,34 +178,6 @@ cd src
 
 python3 -m unittest discover -s tests -v
 ```
-
-### 📊 Verification Target Matrix
-The test suite ensures total adherence to the following functional business validations without executing manual user interface interactions:
-
-| Component Target | Test Block Case | Expected Validation Boundary |
-| :--- | :--- | :--- |
-| **Account Model** | `test_negative_balance_invariant` | Verifies account balances can never be forced beneath zero. |
-| **Account Model** | `test_inactive_account_locks` | Confirms transaction attempts on inactive files throw `PermissionError`. |
-| **Account Model** | `test_conditional_deactivation` | Guarantees account locking is rejected if active assets remain (`> $0.00`). |
-| **Input Utilities**| `test_name_too_short_raises_error`| Restricts and blocks name string creation patterns under 3 characters. |
-| **Input Utilities**| `test_name_duplicate_check` | Rejects new accounts trying to match existing active namespace keys. |
-| **Input Utilities**| `test_amount_empty_returns_zero` | Ensures blank line skips default asset entry amounts back down to zero safely. |
-| **UI Presentation** | `test_get_main_menu_state_valid_choice` | Simulates user key strings to confirm routing maps to exact MenuState enums. |
-| **UI Presentation** | `test_get_main_menu_state_invalid_choice`| Assures faulty entries fallback to DASHBOARD and print error alerts. |
-| :--- | :--- | :--- |
-| **Transaction Model** | `test_transaction_immutability` | Guarantees frozen entities block post-instantiation state mutations. |
-| **Transaction Model** | `test_transfer_hydration_cycle` | Confirms complete 1:1 integrity for data serialization roundtrips. |
-| :--- | :--- | :--- |
-| **Account Model** | `test_negative_balance_invariant` | Verifies account balances can never be forced beneath zero. |
-| **Account Model** | `test_inactive_account_locks` | Confirms transaction attempts on inactive files throw `PermissionError`. |
-| **Input Utilities**| `test_name_too_short_raises_error`| Restricts and blocks name string creation patterns under 3 characters. |
-| **UI Presentation** | `test_get_main_menu_state_invalid`| Assures faulty entries fallback to DASHBOARD and print error alerts. |
-| **Transaction Model**| `test_transaction_immutability` | Guarantees frozen entities block post-instantiation state mutations. |
-| **Storage Engine** | `test_save_tracker_data_atomic` | Verifies safe `.tmp` file generation structures and clean atomic swaps. |
-| **Tracker Core** | `test_transfer_funds_successful` | Coordinates balancing reductions and increases across distinct records. |
-| **Tracker Core** | `test_reports_aggregates_metrics` | Validates computational sum loops generate accurate financial data. |
-
----
 
 ## 🔮 Future Roadmap & Enhancements
 

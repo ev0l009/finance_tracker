@@ -46,7 +46,7 @@ class InvalidAccountTypeError(TrackerException):
     pass
 
 class InvalidAccountStatusError(TrackerException):
-    """Raised when an invalid account type is given"""
+    """Raised when an invalid account status is given"""
 
     pass
 

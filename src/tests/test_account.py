@@ -19,7 +19,7 @@ class TestAccountInvariants(unittest.TestCase):
             id="acc_iI1l3",
             acc_name="Test Acc",
             acc_type=AccType.CASH.value,
-            amount=10000,  # Stored as an integer ($100.00 equivalent)
+            amount=10000,
         )
 
     def test_account_initialization_safety(self):
@@ -43,7 +43,7 @@ class TestAccountInvariants(unittest.TestCase):
     def test_account_property_setters_process_values_correctly(self):
         """Verifies account mutable properties preserve pipeline behavior"""
         with self.assertRaises(InvalidAmountError):
-            self.sample_acc.balance = "invalid_amount"
+            self.sample_acc.balance = "invalid_amount" # type: ignore
         with self.assertRaises(InvalidAmountError):
             self.sample_acc.balance = -10
         with self.assertRaises(InvalidAccountStatusError):
