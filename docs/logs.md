@@ -3,7 +3,7 @@
 Refactored a legacy tracking engine into a highly cohesive, defensive system by introducing an Enum-driven State Pattern, rich domain modeling, and constraint-based UI menus to entirely eliminate user input exceptions and runtime parsing overhead.
 
 🛠️ Architecture & Design Patterns
-
+ 
 • State Pattern Over Nested Loops: Replaced traditional nested while-loop logic with a simplified MenuState Enum.
 	• Decouples individual menu features from the orchestrator.
 	• Eliminates raw string literal bugs.

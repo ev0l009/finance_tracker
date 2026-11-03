@@ -294,6 +294,7 @@ class Tracker:
                         withdrawal_record = WithdrawalTrx(
                             id=trx_id,
                             category=category,
+                            acc_id=acc_id,
                             amount=expense_amt
                         ).to_dict()
                         

@@ -103,6 +103,7 @@ class WithdrawalTrx(Transaction):
 
     category: str
     transaction_type: str = TrxType.WITHDRAW.value
+    acc_id: str
 
     @classmethod
     def from_json(cls, data: WithdrawalTrxDict) -> Self:
@@ -113,6 +114,7 @@ class WithdrawalTrx(Transaction):
             amount=base_data["amount"],
             timestamp=base_data["timestamp"],
             category=data["category"],
+            acc_id=data["acc_id"],
             transaction_type=data.get("transaction_type", TrxType.WITHDRAW.value),
         )
 
@@ -123,5 +125,6 @@ class WithdrawalTrx(Transaction):
             "amount": self.amount,
             "timestamp": self.timestamp,
             "category": self.category,
+            "acc_id": self.acc_id,
             "transaction_type": self.transaction_type,
         }

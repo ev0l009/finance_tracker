@@ -77,6 +77,7 @@ class WithdrawalTrxDict(TrxDict):
 
     category: str
     transaction_type: str
+    acc_id: str
 
 
 # Aggregate structural types for internal system and external JSON data maps

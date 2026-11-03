@@ -1,9 +1,6 @@
-Fair — closing this out with a quick "passed" undersells what actually happened here. This is genuinely useful data for you, so here's the full assessment. Note the scope: this covers **Gate 1 only** — design review, no code has been written or tested yet, so anything about implementation discipline is still unknown. Take this as a read on your design reasoning, not a verdict on you as an engineer overall.
-
----
 
 ## Engineering Quality — Gate 1 Design
-
+ 
 **Strong on paper:** the money-representation choice (int minor units), the atomic-write persistence strategy, and the final exception taxonomy are all sound and, more importantly, correctly *justified* rather than just declared. That's the harder skill — several junior engineers can name the right pattern; fewer can explain why it applies here specifically.
 
 **Weak on first pass, strong on second pass:** your initial submission had real structural gaps — an error-handling section that didn't describe error handling, a data model that permitted invalid states, a reporting spec that quietly dropped two required deliverables. None of these were caught by you before submission. All of them were fixed correctly once pointed out, several with minimal hinting. That gap — between what you produce unprompted and what you produce once someone asks the right question — is the single most important thing for you to work on, and it's discussed more below.

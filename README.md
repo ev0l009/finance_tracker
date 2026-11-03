@@ -1,6 +1,6 @@
 # Personal Finance Tracker CLI
 
-A lightweight, robust command-line financial ledger application built with modern Python. This system showcases pure domain-driven design, rigid state management, and defensive engineering practices—completely isolating core business rules from presentation layers.
+A lightweight, robust command-line financial ledger application built with modern Python. The application centralizes management for various financial accounts so an individual doesn't have to keep track of their finances through scattered notes.
 
 ---
 
@@ -21,15 +21,6 @@ The Finance Tracker CLI provides a comprehensive command-line financial ecosyste
 *   **Categorized Expense Tracking:** Segments withdrawals by commercial channels (`Food`, `Bills`, `Transport`, `Airtime`, `Health`, `Shopping`, `Entertainment`, `Others`).
 *   **Global Overview Reporting:** Aggregates real-time net worth totals, global inflow tracking, and aggregate outlays.
 *   **Dynamic Expenditure Visuals:** Automatically compiles and sorts out-of-pocket spending into a clean category-by-category breakdown table.
-
----
-
-## 🚀 Key Architectural Strengths
-
-*   **Decoupled Architecture (SoC):** Pure separation of concerns. Domain entities (`Account`, `Transaction`) process financial validation variants and state mutations without any awareness of terminal I/O or printing mechanics.
-*   **Immutability for Ledger Integrity:** Transaction entries use Python `@dataclass(frozen=True)` wrappers to ensure records are mathematically unalterable once appended to the ledger.
-*   **Atomic Persistence Engine:** Protects storage from corruption. Data saves to a staging `.tmp` block first, executing an atomic file swap (`os.replace`) to guarantee zero file truncation issues during sudden process drops.
-*   **Defensive Type Systems:** Completely eliminates brittle raw string literals. Employs descriptive `Enum` state machines for user navigation and `TypedDict` for structured, type-hinted serialization mapping boundaries.
 
 ---
 
