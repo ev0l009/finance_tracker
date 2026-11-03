@@ -279,7 +279,7 @@ class Tracker:
             elif state == AccDashState.WITHRAWAL.value:
                 print("\n  ACCOUNT WITHDRAWAL")
                 raw_amt = input("  Enter withdrawal amount → ").strip()
-                try:
+                try: 
                     expense_amt = validate_amount(raw_amt)
                     if expense_amt <= 0:
                         print("\n  [!] Error: Withdrawal amount must be greater than $0.00.")
