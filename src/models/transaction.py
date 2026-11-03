@@ -6,23 +6,30 @@ deposits, and withdrawals using Python data classes.
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Self
 
 from models.types import DepositTrxDict, TransferTrxDict, TrxDict, TrxType, WithdrawalTrxDict
+
+from exceptions import InvalidIDError, InvalidAmountError, SameAccountTransferError, InvalidTransactionTypeError
 
 
 def generate_timestamp() -> datetime:
     """Generates a timezone-aware UTC datetime truncated to seconds."""
     return datetime.now(timezone.utc).replace(microsecond=0)
 
-
 @dataclass(frozen=True, kw_only=True)
 class Transaction:
     """Base immutable schema for all financial transaction entities."""
-
-    id: str
+    trx_id: str
     amount: int
     timestamp: datetime | str = field(default_factory=generate_timestamp)
+
+    def __post_init__(self):
+        if not self.trx_id.strip():
+            raise InvalidIDError("Transaction ID cannot be empty")
+        if type(self.amount) is not int:
+            raise InvalidAmountError("Amount must be a valid whole number integer.")
+        if self.amount < 0:
+            raise InvalidAmountError("Amount cannot be a negative value.")
 
     @classmethod
     def parse_json(cls, data: TrxDict) -> TrxDict:
@@ -42,23 +49,18 @@ class TransferTrx(Transaction):
     target_acc_id: str
     transaction_type: str = TrxType.TRANSFER.value
 
-    @classmethod
-    def from_json(cls, data: TransferTrxDict) -> Self:
-        """Hydrates a serialized dictionary payload into a live TransferTrx instance."""
-        base_data = cls.parse_json(data)
-        return cls(
-            id=base_data["id"],
-            amount=base_data["amount"],
-            timestamp=base_data["timestamp"],
-            source_acc_id=data["source_acc_id"],
-            target_acc_id=data["target_acc_id"],
-            transaction_type=data.get("transaction_type", TrxType.TRANSFER.value),
-        )
+    def __post_init__(self):
+        if not self.source_acc_id.strip() or not self.target_acc_id.strip():
+            raise InvalidIDError("Transaction ID cannot be empty")
+        if self.source_acc_id == self.target_acc_id:
+            raise SameAccountTransferError("Source and target accounts cannot be thesame for a transfer transaction.")
+        if self.transaction_type != TrxType.TRANSFER.value:
+            raise InvalidTransactionTypeError("Transaction type must be `transfer` for transfer transactions.")
 
     def to_dict(self) -> TransferTrxDict:
         """Serializes instance fields into a data-transfer structure."""
         return {
-            "id": self.id,
+            "id": self.trx_id,
             "amount": self.amount,
             "timestamp": self.timestamp,
             "source_acc_id": self.source_acc_id,
@@ -74,22 +76,10 @@ class DepositTrx(Transaction):
     acc_id: str
     transaction_type: str = TrxType.DEPOSIT.value
 
-    @classmethod
-    def from_json(cls, data: DepositTrxDict) -> Self:
-        """Hydrates a serialized dictionary payload into a live DepositTrx instance."""
-        base_data = cls.parse_json(data)
-        return cls(
-            id=base_data["id"],
-            amount=base_data["amount"],
-            timestamp=base_data["timestamp"],
-            acc_id=data["acc_id"],
-            transaction_type=data.get("transaction_type", TrxType.DEPOSIT.value),
-        )
-
     def to_dict(self) -> DepositTrxDict:
         """Serializes instance fields into a data-transfer structure."""
         return {
-            "id": self.id,
+            "id": self.trx_id,
             "amount": self.amount,
             "acc_id": self.acc_id,
             "timestamp": self.timestamp,
@@ -105,23 +95,10 @@ class WithdrawalTrx(Transaction):
     transaction_type: str = TrxType.WITHDRAW.value
     acc_id: str
 
-    @classmethod
-    def from_json(cls, data: WithdrawalTrxDict) -> Self:
-        """Hydrates a serialized dictionary payload into a live WithdrawalTrx instance."""
-        base_data = cls.parse_json(data)
-        return cls(
-            id=base_data["id"],
-            amount=base_data["amount"],
-            timestamp=base_data["timestamp"],
-            category=data["category"],
-            acc_id=data["acc_id"],
-            transaction_type=data.get("transaction_type", TrxType.WITHDRAW.value),
-        )
-
     def to_dict(self) -> WithdrawalTrxDict:
         """Serializes instance fields into a data-transfer structure."""
         return {
-            "id": self.id,
+            "id": self.trx_id,
             "amount": self.amount,
             "timestamp": self.timestamp,
             "category": self.category,

@@ -107,7 +107,7 @@ class Tracker:
         if start_balance > 0:
             trx_id = self.generate_id("trx", self.TRX)
             funding_event = DepositTrx(
-                id=trx_id,
+                trx_id=trx_id,
                 amount=start_balance,
                 acc_id=new_acc_id
             ).to_dict()
@@ -214,7 +214,7 @@ class Tracker:
         # Generate transaction ledger items after balances are verified
         trx_id = self.generate_id("trx", self.TRX)
         transfer_record = TransferTrx(
-            id=trx_id,
+            trx_id=trx_id,
             amount=transfer_amt,
             source_acc_id=sender_acc_id,
             target_acc_id=receiver_acc_id
@@ -264,7 +264,7 @@ class Tracker:
                         acc.credit(deposit_amt)
                         trx_id = self.generate_id("trx", self.TRX)
                         deposit_record = DepositTrx(
-                            id=trx_id,
+                            trx_id=trx_id,
                             acc_id=acc_id,
                             amount=deposit_amt
                         ).to_dict()
@@ -292,7 +292,7 @@ class Tracker:
                         acc.debit(expense_amt)
                         trx_id = self.generate_id("trx", self.TRX)
                         withdrawal_record = WithdrawalTrx(
-                            id=trx_id,
+                            trx_id=trx_id,
                             category=category,
                             acc_id=acc_id,
                             amount=expense_amt

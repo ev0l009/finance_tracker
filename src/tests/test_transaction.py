@@ -26,6 +26,7 @@ class TestTransactionModels(unittest.TestCase):
         self.raw_withdrawal_data: WithdrawalTrxDict = {
             "id": "trx_Uz9yZ",
             "amount": 500,
+            "acc_id": "acc_rfGd2",
             "timestamp": "2026-10-28T22:20:17+00:00",
             "category": "food",
             "transaction_type": "withdraw"
