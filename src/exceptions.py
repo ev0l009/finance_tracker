@@ -57,3 +57,7 @@ class InvalidTransactionTypeError(TrackerException):
 class InvalidCategoryError(TrackerException):
     """Raised when an invalid expense category value is passed."""
     pass
+
+class InvalidTransactionDateError(ValueError):
+    """Raised when a transaction date is in the future, malformed, or out of bounds."""
+    pass

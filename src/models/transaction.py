@@ -3,7 +3,7 @@
 Defines an immutable data layer structure modeling financial transfers, 
 deposits, and withdrawals using Python data classes.
 """
-
+ 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
