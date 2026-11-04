@@ -41,13 +41,13 @@ def save_tracker_data(tracker_data: TrackerData) -> None:
 
     # Normalize transaction timestamps to ISO strings
     for trx in tracker_data.get("transactions", []):
-        trx_copy = trx.copy()
-        timestamp = trx_copy.get("timestamp")
+        trx_dict = trx.to_dict()
+        timestamp = trx_dict.get("timestamp")
         
         if isinstance(timestamp, datetime):
-            trx_copy["timestamp"] = timestamp.isoformat()
+            trx_dict["timestamp"] = timestamp.isoformat()
             
-        serialized_data["transactions"].append(trx_copy)
+        serialized_data["transactions"].append(trx_dict)
 
     temp_file_path = FILE_PATH.with_suffix(".json.tmp")
 
