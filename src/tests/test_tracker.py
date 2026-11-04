@@ -12,7 +12,7 @@ from unittest.mock import patch
 from models.account import Account
 from models.tracker import Tracker
 from models.types import TrxType
-
+from models.transaction import DepositTrx, WithdrawalTrx, TransferTrx
 
 class TestTrackerOrchestration(unittest.TestCase):
     """Test suite ensuring master orchestration routines preserve data safety rules."""
@@ -79,8 +79,8 @@ class TestTrackerOrchestration(unittest.TestCase):
         
         # Ensure a funding transaction entry was automatically logged for the opening balance
         self.assertEqual(len(self.tracker.data["transactions"]), 1)
-        self.assertEqual(self.tracker.data["transactions"][0]["amount"], 10000)
-        self.assertEqual(self.tracker.data["transactions"][0]["transaction_type"], TrxType.DEPOSIT.value)
+        self.assertEqual(self.tracker.data["transactions"][0].amount, 10000)
+        self.assertEqual(self.tracker.data["transactions"][0].transaction_type, TrxType.DEPOSIT.value)
 
     # --- INTER-ACCOUNT FUND TRANSFER TESTS ---
 
@@ -99,9 +99,9 @@ class TestTrackerOrchestration(unittest.TestCase):
 
         # Audit ledger log checks
         self.assertEqual(len(self.tracker.data["transactions"]), 1)
-        self.assertEqual(self.tracker.data["transactions"][0]["transaction_type"], TrxType.TRANSFER.value)
-        self.assertEqual(self.tracker.data["transactions"][0]["source_acc_id"], self.acc1_id)
-        self.assertEqual(self.tracker.data["transactions"][0]["target_acc_id"], self.acc2_id)
+        self.assertEqual(self.tracker.data["transactions"][0].transaction_type, TrxType.TRANSFER.value)
+        self.assertEqual(self.tracker.data["transactions"][0].source_acc_id, self.acc1_id)
+        self.assertEqual(self.tracker.data["transactions"][0].target_acc_id, self.acc2_id)
 
     @patch("builtins.input", return_value="60000")  # Overdraft attempt
     @patch("models.tracker.select_acc", return_value="acc_aaaaa")
@@ -120,11 +120,27 @@ class TestTrackerOrchestration(unittest.TestCase):
     def test_reports_aggregates_metrics_correctly(self, mock_stdout) -> None:
         """Verifies report calculation routines aggregate global metrics transparently."""
         # Seed explicit mock transactions to feed aggregation filters
-        self.tracker.data["transactions"].extend([
-            {"id": "t1", "amount": 5000, "transaction_type": TrxType.DEPOSIT.value},
-            {"id": "t2", "amount": 1200, "transaction_type": TrxType.WITHDRAW.value, "category": "Food"},
-            {"id": "t3", "amount": 800, "transaction_type": TrxType.WITHDRAW.value, "category": "Bills"}
-        ])
+        trx_1 = DepositTrx(
+            id="t1", 
+            amount=5000,
+            acc_id="acc_m0ck3",
+            transaction_type=TrxType.DEPOSIT.value
+        )
+        trx_2 = WithdrawalTrx(
+            id="t2", 
+            amount=1200, 
+            transaction_type=TrxType.WITHDRAW.value, 
+            category="Food",
+            acc_id="acc_m0ck3",
+        )
+        trx_3 = WithdrawalTrx(
+            id="t3", 
+            amount=800, 
+            transaction_type=TrxType.WITHDRAW.value, 
+            category="Bills",
+            acc_id="acc_m0ck3",
+        )
+        self.tracker.data["transactions"].extend([trx_1,trx_2,trx_3])
 
         self.tracker.reports()
         output = mock_stdout.getvalue()
