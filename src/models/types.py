@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
     from models.account import Account
+    from models.transaction import DepositTrx, WithdrawalTrx, TransferTrx
 
 
 class MenuState(Enum):
@@ -83,12 +84,13 @@ class WithdrawalTrxDict(TrxDict):
 # Aggregate structural types for internal system and external JSON data maps
 AnyTransactionDict = TransferTrxDict | DepositTrxDict | WithdrawalTrxDict
 
+AnyTransactionObj = DepositTrx | WithdrawalTrx | TransferTrx
 
 class TrackerData(TypedDict):
     """In-memory core application data map."""
 
     accounts: dict[str, Account]
-    transactions: list[AnyTransactionDict]
+    transactions: list[AnyTransactionObj]
 
 
 class JsonTrackerData(TypedDict):
@@ -120,3 +122,14 @@ class TrxType(Enum):
     TRANSFER = "transfer"
     WITHDRAW = "withdraw"
     DEPOSIT = "deposit"
+
+class ExpCatOpts(Enum):
+    """Valid expense categories"""
+    FOOD = "food"
+    BILLS = "bills"
+    TRANSPORT = "transport"
+    AIRTIME = "airtime"
+    HEALTH = "health"
+    SHOPPING = "shopping"
+    ENTERTAINMENT = "entertainment"
+    OTHERS = "others"

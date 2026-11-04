@@ -53,3 +53,7 @@ class SameAccountTransferError(TrackerException):
 class InvalidTransactionTypeError(TrackerException):
     """Raised when an invalid transaction type is used."""
     pass
+
+class InvalidCategoryError(TrackerException):
+    """Raised when an invalid expense category value is passed."""
+    pass

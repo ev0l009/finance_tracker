@@ -5,7 +5,7 @@ and routing selections cleanly back into application state flows.
 """
  
 from exceptions import InvalidOptionError, NullEligibleAccountsError
-from models.types import AccDashState, AccType, MenuState
+from models.types import AccDashState, AccType, MenuState, ExpCatOpts
 
 
 def get_main_menu_state() -> str:
@@ -164,14 +164,14 @@ def get_category() -> str:
         InvalidOptionError: If the user provides an out-of-bounds input.
     """
     cat_options = {
-        "1": "food",
-        "2": "bills",
-        "3": "transport",
-        "4": "airtime",
-        "5": "health",
-        "6": "shopping",
-        "7": "entertainment",
-        "8": "others",
+        "1": ExpCatOpts.FOOD.value,
+        "2": ExpCatOpts.BILLS.value,
+        "3": ExpCatOpts.TRANSPORT.value,
+        "4": ExpCatOpts.AIRTIME.value,
+        "5": ExpCatOpts.HEALTH.value,
+        "6": ExpCatOpts.SHOPPING.value,
+        "7": ExpCatOpts.ENTERTAINMENT.value,
+        "8": ExpCatOpts.OTHERS.value,
     }
 
     print("\n  Select category:")

@@ -57,7 +57,7 @@ class Tracker:
             
             if field == self.TRX:
                 # Deduplicate transactions list tracking records
-                if not any(trx["id"] == gen_id for trx in self.data["transactions"]):
+                if not any(trx.id == gen_id for trx in self.data["transactions"]):
                     return gen_id
 
     def create_account(self) -> None:
@@ -107,10 +107,10 @@ class Tracker:
         if start_balance > 0:
             trx_id = self.generate_id("trx", self.TRX)
             funding_event = DepositTrx(
-                trx_id=trx_id,
+                id=trx_id,
                 amount=start_balance,
                 acc_id=new_acc_id
-            ).to_dict()
+            )
 
             self.data["transactions"].append(funding_event)
 
@@ -214,11 +214,11 @@ class Tracker:
         # Generate transaction ledger items after balances are verified
         trx_id = self.generate_id("trx", self.TRX)
         transfer_record = TransferTrx(
-            trx_id=trx_id,
+            id=trx_id,
             amount=transfer_amt,
             source_acc_id=sender_acc_id,
             target_acc_id=receiver_acc_id
-        ).to_dict()
+        )
         
         self.data["transactions"].append(transfer_record)
         print("\n  [✓] Transfer completed successfully.\n")
@@ -264,10 +264,10 @@ class Tracker:
                         acc.credit(deposit_amt)
                         trx_id = self.generate_id("trx", self.TRX)
                         deposit_record = DepositTrx(
-                            trx_id=trx_id,
+                            id=trx_id,
                             acc_id=acc_id,
                             amount=deposit_amt
-                        ).to_dict()
+                        )
                         
                         self.data["transactions"].append(deposit_record)
                         print(f"\n  [✓] Deposit successful. New Balance: ${acc.balance:,.2f}")
@@ -292,11 +292,11 @@ class Tracker:
                         acc.debit(expense_amt)
                         trx_id = self.generate_id("trx", self.TRX)
                         withdrawal_record = WithdrawalTrx(
-                            trx_id=trx_id,
+                            id=trx_id,
                             category=category,
                             acc_id=acc_id,
                             amount=expense_amt
-                        ).to_dict()
+                        )
                         
                         self.data["transactions"].append(withdrawal_record)
                         print(f"\n  [✓] Withdrawal successful. New Balance: ${acc.balance:,.2f}")
@@ -337,16 +337,16 @@ class Tracker:
         print("  " + "—" * 45)
 
         for trx in self.data["transactions"]:
-            trx_id = trx["id"]
-            trx_type = trx["transaction_type"].capitalize()
+            trx_id = trx.id
+            trx_type = trx.transaction_type.capitalize()
             
             # Explicit directional labeling based on specific financial context types
-            if trx["transaction_type"] == TrxType.DEPOSIT.value:
-                amt_str = f"+${trx['amount']:,.2f}"
-            elif trx["transaction_type"] == TrxType.TRANSFER.value:
-                amt_str = f"⇄ ${trx['amount']:,.2f}"
+            if trx.transaction_type == TrxType.DEPOSIT.value:
+                amt_str = f"+${trx.amount:,.2f}"
+            elif trx.transaction_type == TrxType.TRANSFER.value:
+                amt_str = f"⇄ ${trx.amount:,.2f}"
             else:
-                amt_str = f"-${trx['amount']:,.2f}"
+                amt_str = f"-${trx.amount:,.2f}"
 
             print(f"  {trx_id:<13} {trx_type:<11} {amt_str:>16}")
 
@@ -361,19 +361,19 @@ class Tracker:
 
         net_balance = sum(acc.balance for acc in active_accs)
         total_income = sum(
-            t["amount"] for t in self.data["transactions"]
-            if t["transaction_type"] == TrxType.DEPOSIT.value
+            t.amount for t in self.data["transactions"]
+            if t.transaction_type == TrxType.DEPOSIT.value
         )
         total_expense = sum(
-            t["amount"] for t in self.data["transactions"]
-            if t["transaction_type"] == TrxType.WITHDRAW.value
+            t.amount for t in self.data["transactions"]
+            if t.transaction_type == TrxType.WITHDRAW.value
         )
 
         expense_category: dict[str, int] = {}
         for trx in self.data["transactions"]:
-            if trx["transaction_type"] == TrxType.WITHDRAW.value:
+            if trx.transaction_type == TrxType.WITHDRAW.value:
                 cat = trx["category"].title() # type: ignore
-                expense_category[cat] = expense_category.get(cat, 0) + trx["amount"] # type: ignore
+                expense_category[cat] = expense_category.get(cat, 0) + trx.amount # type: ignore
 
         print("\n  FINANCIAL REPORT OVERVIEW")
         print("  " + "—" * 35)
