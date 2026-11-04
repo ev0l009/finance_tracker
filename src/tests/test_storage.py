@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 from file_manager import storage
 from models.account import Account
+from models.transaction import WithdrawalTrx
 from models.types import AccType, TrackerData, TrxType
 from datetime import datetime, timezone
 import shutil
@@ -40,17 +41,16 @@ class TestStorageSystem(unittest.TestCase):
             amount=5000,
             created_at=datetime(2026, 10, 31, 12, 0, 0, tzinfo=timezone.utc),
         )
+        self.mock_trx = WithdrawalTrx(
+            id="trx_456Ty",
+            amount=2000,
+            acc_id="acc_abc12",
+            transaction_type=TrxType.WITHDRAW.value,
+            category="others"
+        )
         self.mock_data: TrackerData = {
             "accounts": { "acc_abc12": self.mock_acc },
-            "transactions": [
-                {
-                    "id": "trx_456Ty",
-                    "amount": 2000,
-                    "category": "others",
-                    "transaction_type": TrxType.WITHDRAW.value,
-                    "timestamp": datetime(2026, 10, 31, 12, 0, 0, tzinfo=timezone.utc),
-                }
-            ]
+            "transactions": [self.mock_trx]
         }
 
     def test_initialize_function(self):
@@ -124,11 +124,11 @@ class TestStorageSystem(unittest.TestCase):
         self.assertEqual(test_acc.balance, 5000)
         self.assertIsInstance(test_acc.created_at, datetime)
 
-        self.assertEqual(test_trx["id"], "trx_456Ty")
-        self.assertEqual(test_trx["amount"], 2000)
-        self.assertEqual(test_trx["category"], "others") # type: ignore
-        self.assertEqual(test_trx["transaction_type"], TrxType.WITHDRAW.value)
-        self.assertIsInstance(test_trx["timestamp"], datetime)
+        self.assertEqual(test_trx.id, "trx_456Ty")
+        self.assertEqual(test_trx.amount, 2000)
+        self.assertEqual(test_trx.category, "others") # type: ignore
+        self.assertEqual(test_trx.transaction_type, TrxType.WITHDRAW.value)
+        self.assertIsInstance(test_trx.timestamp, datetime)
 
 if __name__ == "__main__":
     unittest.main()
