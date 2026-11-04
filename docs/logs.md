@@ -49,25 +49,16 @@ Using objects lets you leverage Python static type checkers (like mypy) and IDE 
 
 
 
-Q1 => A. Summary: Frozen Objects vs. Storage Dicts
-In Memory (Frozen Object): Ensures absolute data integrity. Transactions cannot be created with invalid data and cannot be modified after creation, treating ledger history as unalterable. It also grants full type safety and auto-complete in your code.
-In Storage (Raw Dictionary): Keeps data structures simple and lightweight. Databases natively store and query JSON or key-value structures, completely decoupling database tools from application-specific Python logic.
-On Load (Dict to Object): Acts as a dynamic security checkpoint. Forcing retrieved database data back into a frozen object instantly re-runs validation, catching any corrupted or unauthorized data changes before they enter memory.
-Core Justification: Dictionaries are used for simple storage compatibility, while frozen objects are used to guarantee strict, un-breachable business logic while the application is running. I have logged this
-
-Q2/Q3:
-| Field | Illegal values | Exception |
-| :--- | :--- | :--- |
-| `id`, `source_acc_id`,`target_acc_id`, `acc_id`  (for accounts and transactions) | empty string | `InvalidIDError` |
-| `acc_name` | empty strings, string with less than 4 characters | `AccNameError` |
-| `acc_type` | empty strings, invalid account type | `InvalidAccountTypeError` |
-| `acc_status` | empty strings, invalid account status | `InvalidAccountStatusError` |
-| `amount` | zero and negative amounts, non-integer values | `InvalidAmountError` |
-| `amount` | amount greater than available balance | `ExcessDebitError` |
-| `balance` | negative balance | `InvalidAmountError` |
-|  `source_acc_id`,`target_acc_id` | `source_acc_id == target_acc_id` during transfers  | `SameAccountTransferError` |
-| `timestamp` | empty/invalid date inputs | `InvalidTransactionDateError` |
-| `transaction_type` | empty strings, invalid transaction type | `InvalidTransactionTypeError` |
-| `category` | empty strings, invalid category | `InvalidCategoryError` | 
-For the time entries, to reduce errors, i intend to continuously prompt the user in this order;
-year, month, date, hour, minute. I'll use the 24 hour clock. The entries pass through a time patcher that parses it into this format YYYY/MM/DD​. Something close to what the datetime module can work with. The time patcher will handle validation and time processing. It will be in the ui layer somewhat, then the deeper transaction class level validation. I don't think the time should be UTC aware
+Field / Rule	Illegal Condition	Canonical Exception Type	Enforcing Layer
+IDs (id, source_acc_id, etc.)	Empty string, non-string types, or malformed prefix syntax (e.g., "acc_x")	InvalidIdentifierError	Entity
+Account Name	Empty, string length < 4 or > 20 chars, or purely whitespace (" ")	InvalidAccountNameError	UI Input & Entity
+Account Name	Duplicate name within the ledger database (Case-Insensitive)	DuplicateAccountError	Service
+Account Type / Status	Empty string, or value outside defined enums (e.g., Active/Suspended)	InvalidAccountStateError	UI Input & Entity
+Transaction Amount	Zero, negative numbers, non-integers, booleans, or values > 2⁶³-1	InvalidAmountError	Entity
+Transaction Amount	Floating-point strings (e.g., "1,500.505") sent to currency parser	CurrencyParsingError	UI Input
+Transaction Amount	Amount greater than the source account's available balance	ExcessDebitError	Service
+Account Balance	Structural storage operation forcing a running balance < 0	ExcessDebitError	Service
+Transfer Integrity	source_acc_id == target_acc_id identically during a transfer execution	SameAccountTransferError	Service & Entity
+Timestamp / Date	Missing, malformed date input, or a calendar date in the future	FutureDateError	UI Input & Entity
+Transaction Type	Empty string, or value outside allowed directional types (Credit/Debit)	InvalidTransactionTypeError	Entity
+Category	Empty string, or custom string containing leading/trailing whitespace	InvalidCategoryError	
