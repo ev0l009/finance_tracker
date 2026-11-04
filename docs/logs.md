@@ -45,3 +45,29 @@ Data in a database can occasionally become corrupted, altered by direct database
 4. Self-Documenting Code & Type Safety
 
 Using objects lets you leverage Python static type checkers (like mypy) and IDE autocompletion. Instead of guessing if a dictionary contains "tx_time", "timestamp", or "date", a frozen data class explicitly defines the type contract:
+
+
+
+
+Q1 => A. Summary: Frozen Objects vs. Storage Dicts
+In Memory (Frozen Object): Ensures absolute data integrity. Transactions cannot be created with invalid data and cannot be modified after creation, treating ledger history as unalterable. It also grants full type safety and auto-complete in your code.
+In Storage (Raw Dictionary): Keeps data structures simple and lightweight. Databases natively store and query JSON or key-value structures, completely decoupling database tools from application-specific Python logic.
+On Load (Dict to Object): Acts as a dynamic security checkpoint. Forcing retrieved database data back into a frozen object instantly re-runs validation, catching any corrupted or unauthorized data changes before they enter memory.
+Core Justification: Dictionaries are used for simple storage compatibility, while frozen objects are used to guarantee strict, un-breachable business logic while the application is running. I have logged this
+
+Q2/Q3:
+| Field | Illegal values | Exception |
+| :--- | :--- | :--- |
+| `id`, `source_acc_id`,`target_acc_id`, `acc_id`  (for accounts and transactions) | empty string | `InvalidIDError` |
+| `acc_name` | empty strings, string with less than 4 characters | `AccNameError` |
+| `acc_type` | empty strings, invalid account type | `InvalidAccountTypeError` |
+| `acc_status` | empty strings, invalid account status | `InvalidAccountStatusError` |
+| `amount` | zero and negative amounts, non-integer values | `InvalidAmountError` |
+| `amount` | amount greater than available balance | `ExcessDebitError` |
+| `balance` | negative balance | `InvalidAmountError` |
+|  `source_acc_id`,`target_acc_id` | `source_acc_id == target_acc_id` during transfers  | `SameAccountTransferError` |
+| `timestamp` | empty/invalid date inputs | `InvalidTransactionDateError` |
+| `transaction_type` | empty strings, invalid transaction type | `InvalidTransactionTypeError` |
+| `category` | empty strings, invalid category | `InvalidCategoryError` | 
+For the time entries, to reduce errors, i intend to continuously prompt the user in this order;
+year, month, date, hour, minute. I'll use the 24 hour clock. The entries pass through a time patcher that parses it into this format YYYY/MM/DD​. Something close to what the datetime module can work with. The time patcher will handle validation and time processing. It will be in the ui layer somewhat, then the deeper transaction class level validation. I don't think the time should be UTC aware
