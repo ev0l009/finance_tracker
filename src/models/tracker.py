@@ -3,10 +3,9 @@
 Coordinates business workflows, updates states across system components,
 and manages transaction event histories within the application.
 """
-from __future__ import annotations
 import secrets
 import string
-from typing import Final, TYPE_CHECKING
+from typing import Final
 
 from exceptions import AccNameError, InvalidAmountError, InvalidOptionError, NullEligibleAccountsError
 from models.account import Account
@@ -15,9 +14,8 @@ from utils import validate_acc_name, validate_amount
 
 from file_manager.storage import save_tracker_data, load_tracker_data
 
-if TYPE_CHECKING:
-    from models.transaction import DepositTrx, TransferTrx, WithdrawalTrx
-    from models.types import AccStat, TrackerData, TrxType, AccDashState
+from models.transaction import DepositTrx, TransferTrx, WithdrawalTrx
+from models.types import AccStat, TrackerData, TrxType, AccDashState
 
 
 class Tracker:
@@ -375,7 +373,7 @@ class Tracker:
         expense_category: dict[str, int] = {}
         for trx in self.data["transactions"]:
             if trx.transaction_type == TrxType.WITHDRAW.value:
-                cat = trx["category"].title() # type: ignore
+                cat = trx.category.title() # type: ignore
                 expense_category[cat] = expense_category.get(cat, 0) + trx.amount # type: ignore
 
         print("\n  FINANCIAL REPORT OVERVIEW")

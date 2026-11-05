@@ -3,17 +3,13 @@
 Defines an immutable data layer structure modeling financial transfers, 
 deposits, and withdrawals using Python data classes.
 """
-from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
-
-from models.types import TrxType, ExpCatOpts
 
 from exceptions import InvalidIDError, InvalidAmountError, SameAccountTransferError, InvalidTransactionTypeError, InvalidCategoryError
 
-if TYPE_CHECKING:
-    from models.types import DepositTrxDict, TransferTrxDict, TrxDict, TrxType, WithdrawalTrxDict
+from models.types import TrxType, ExpCatOpts, DepositTrxDict, TransferTrxDict, TrxDict, WithdrawalTrxDict
+
 
 def generate_timestamp() -> datetime:
     """Generates a timezone-aware UTC datetime truncated to seconds."""
@@ -100,11 +96,14 @@ class DepositTrx(Transaction):
 class WithdrawalTrx(Transaction):
     """Immutable ledger record tracking out-of-pocket expenses or out-of-system outflows."""
 
+
     category: str
     transaction_type: str = TrxType.WITHDRAW.value
     acc_id: str
 
     def __post_init__(self):
+        
+        
         if self.transaction_type != TrxType.WITHDRAW.value:
             raise InvalidTransactionTypeError("Transaction type must be `withdrawal` for withdrawal transactions.")
         if not self.acc_id.strip():

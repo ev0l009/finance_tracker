@@ -1,0 +1,75 @@
+{
+    "accounts": {
+        "acc_dniUt": {
+            "id": "acc_dniUt",
+            "acc_name": "UBA",
+            "balance": 13000,
+            "acc_type": "bank",
+            "acc_status": "active",
+            "created_at": "2026-11-05T14:12:37+00:00"
+        },
+        "acc_c2ZGf": {
+            "id": "acc_c2ZGf",
+            "acc_name": "Savings",
+            "balance": 7000,
+            "acc_type": "savings",
+            "acc_status": "active",
+            "created_at": "2026-11-05T14:12:46+00:00"
+        },
+        "acc_ix10R": {
+            "id": "acc_ix10R",
+            "acc_name": "Opay",
+            "balance": 4500,
+            "acc_type": "mobile",
+            "acc_status": "active",
+            "created_at": "2026-11-05T14:12:54+00:00"
+        }
+    },
+    "transactions": [
+        {
+            "id": "trx_EftIe",
+            "amount": 20000,
+            "acc_id": "acc_dniUt",
+            "timestamp": "2026-11-05T14:12:37+00:00",
+            "transaction_type": "deposit"
+        },
+        {
+            "id": "trx_8Rjpg",
+            "amount": 5000,
+            "acc_id": "acc_c2ZGf",
+            "timestamp": "2026-11-05T14:12:46+00:00",
+            "transaction_type": "deposit"
+        },
+        {
+            "id": "trx_qSpX6",
+            "amount": 5000,
+            "timestamp": "2026-11-05T14:13:05+00:00",
+            "source_acc_id": "acc_dniUt",
+            "target_acc_id": "acc_ix10R",
+            "transaction_type": "transfer"
+        },
+        {
+            "id": "trx_qwZlk",
+            "amount": 2000,
+            "timestamp": "2026-11-05T14:13:21+00:00",
+            "category": "entertainment",
+            "acc_id": "acc_dniUt",
+            "transaction_type": "withdraw"
+        },
+        {
+            "id": "trx_6TJSr",
+            "amount": 2000,
+            "acc_id": "acc_c2ZGf",
+            "timestamp": "2026-11-05T14:13:39+00:00",
+            "transaction_type": "deposit"
+        },
+        {
+            "id": "trx_srzJf",
+            "amount": 500,
+            "timestamp": "2026-11-05T14:14:16+00:00",
+            "category": "airtime",
+            "acc_id": "acc_ix10R",
+            "transaction_type": "withdraw"
+        }
+    ]
+}

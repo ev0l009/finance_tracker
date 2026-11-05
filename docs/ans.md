@@ -8,3 +8,9 @@
 | Persistence and consistency | Corrupted ledger recovery could result in valid financial data being overwritten; operation-ordering questions remained unanswered. | Knowledge gap + application gap | Reproduce corruption and save failures experimentally; document memory and disk state at each failure point. |
 | Engineering discipline | Undocumented design changes, contradictory documentation and unused from_json discovered only after prompting. | Process lapse | Use a drift ledger, decision log, codebase audit and pre-submission checklist. |
 | AI-assisted engineering | Some polished explanations contained stronger claims than the reasoning demonstrated. | Process lapse + application gap | Write independent technical explanations before using AI to critique them; defend every architectural claim under questioning. |
+
+
+
+ledger.json holds 500 valid transactions and one record with a typo. The app starts, prints an error, and continues with an empty ledger. The user, not reading closely, records a ₦500 expense. What does ledger.json contain afterward?
+
+Just the new ₦500 expense since the previous sessions were cleared due to the corrupted record

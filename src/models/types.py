@@ -9,10 +9,10 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, TypedDict
 
-from models.transaction import DepositTrx, WithdrawalTrx, TransferTrx
 
 if TYPE_CHECKING:
     from models.account import Account
+    from models.transaction import DepositTrx, WithdrawalTrx, TransferTrx
 
 
 class MenuState(Enum):
@@ -85,13 +85,11 @@ class WithdrawalTrxDict(TrxDict):
 # Aggregate structural types for internal system and external JSON data maps
 AnyTransactionDict = TransferTrxDict | DepositTrxDict | WithdrawalTrxDict
 
-AnyTransactionObj = DepositTrx | WithdrawalTrx | TransferTrx
-
 class TrackerData(TypedDict):
     """In-memory core application data map."""
 
     accounts: dict[str, Account]
-    transactions: list[AnyTransactionObj]
+    transactions: list[DepositTrx | WithdrawalTrx | TransferTrx]
 
 
 class JsonTrackerData(TypedDict):
