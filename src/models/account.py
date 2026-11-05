@@ -4,15 +4,18 @@ Defines the core operational Account entity, ensuring strict maintenance of
 financial invariants, lifecycle state machines, and safe JSON serialization.
 """
 
+from __future__ import annotations
 from datetime import datetime, timezone
-from typing import Any, Self
+from typing import Any, Self, TYPE_CHECKING
 
-from models.types import AccDict, AccStat, AccType
 
 from exceptions import InvalidIDError, AccNameError, InvalidAccountTypeError, InvalidAmountError, InvalidAccountStatusError, ExcessDebitError, AccStatusError
 
+if TYPE_CHECKING:
+    from models.types import AccDict, AccStat, AccType
+
 class Account:
-    """Encapsulates account configurations, state constraints, and balance updates."""
+    """Encapsulates account configurations, state constraints, and balance updates.""" 
 
     def __init__(
         self,

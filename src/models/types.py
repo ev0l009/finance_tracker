@@ -8,6 +8,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, TypedDict
+
 from models.transaction import DepositTrx, WithdrawalTrx, TransferTrx
 
 if TYPE_CHECKING:

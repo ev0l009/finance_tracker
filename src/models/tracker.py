@@ -3,19 +3,22 @@
 Coordinates business workflows, updates states across system components,
 and manages transaction event histories within the application.
 """
-
+from __future__ import annotations
 import secrets
 import string
-from typing import Final
+from typing import Final, TYPE_CHECKING
 
 from exceptions import AccNameError, InvalidAmountError, InvalidOptionError, NullEligibleAccountsError
 from models.account import Account
-from models.transaction import DepositTrx, TransferTrx, WithdrawalTrx
-from models.types import AccStat, TrackerData, TrxType, AccDashState
 from ui import get_account_type, select_acc, get_acc_dash_state
 from utils import validate_acc_name, validate_amount
 
 from file_manager.storage import save_tracker_data, load_tracker_data
+
+if TYPE_CHECKING:
+    from models.transaction import DepositTrx, TransferTrx, WithdrawalTrx
+    from models.types import AccStat, TrackerData, TrxType, AccDashState
+
 
 class Tracker:
     """Orchestrates high-level system functions and manages memory data sets."""

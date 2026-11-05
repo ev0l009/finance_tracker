@@ -3,14 +3,17 @@
 Defines an immutable data layer structure modeling financial transfers, 
 deposits, and withdrawals using Python data classes.
 """
- 
+from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
-from models.types import DepositTrxDict, TransferTrxDict, TrxDict, TrxType, WithdrawalTrxDict, ExpCatOpts
+from models.types import TrxType, ExpCatOpts
 
 from exceptions import InvalidIDError, InvalidAmountError, SameAccountTransferError, InvalidTransactionTypeError, InvalidCategoryError
 
+if TYPE_CHECKING:
+    from models.types import DepositTrxDict, TransferTrxDict, TrxDict, TrxType, WithdrawalTrxDict
 
 def generate_timestamp() -> datetime:
     """Generates a timezone-aware UTC datetime truncated to seconds."""

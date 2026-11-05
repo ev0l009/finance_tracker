@@ -45,20 +45,3 @@ Data in a database can occasionally become corrupted, altered by direct database
 4. Self-Documenting Code & Type Safety
 
 Using objects lets you leverage Python static type checkers (like mypy) and IDE autocompletion. Instead of guessing if a dictionary contains "tx_time", "timestamp", or "date", a frozen data class explicitly defines the type contract:
-
-
-
-
-Field / Rule	Illegal Condition	Canonical Exception Type	Enforcing Layer
-IDs (id, source_acc_id, etc.)	Empty string, non-string types, or malformed prefix syntax (e.g., "acc_x")	InvalidIdentifierError	Entity
-Account Name	Empty, string length < 4 or > 20 chars, or purely whitespace (" ")	InvalidAccountNameError	UI Input & Entity
-Account Name	Duplicate name within the ledger database (Case-Insensitive)	DuplicateAccountError	Service
-Account Type / Status	Empty string, or value outside defined enums (e.g., Active/Suspended)	InvalidAccountStateError	UI Input & Entity
-Transaction Amount	Zero, negative numbers, non-integers, booleans, or values > 2⁶³-1	InvalidAmountError	Entity
-Transaction Amount	Floating-point strings (e.g., "1,500.505") sent to currency parser	CurrencyParsingError	UI Input
-Transaction Amount	Amount greater than the source account's available balance	ExcessDebitError	Service
-Account Balance	Structural storage operation forcing a running balance < 0	ExcessDebitError	Service
-Transfer Integrity	source_acc_id == target_acc_id identically during a transfer execution	SameAccountTransferError	Service & Entity
-Timestamp / Date	Missing, malformed date input, or a calendar date in the future	FutureDateError	UI Input & Entity
-Transaction Type	Empty string, or value outside allowed directional types (Credit/Debit)	InvalidTransactionTypeError	Entity
-Category	Empty string, or custom string containing leading/trailing whitespace	InvalidCategoryError	
