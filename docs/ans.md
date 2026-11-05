@@ -34,5 +34,5 @@ I'll try again with focus on transaction records. The app tries to load stored r
 | Scenario | User sees at startup | File contents right after startup | Does anything save on the way out? |
 | --- | --- | --- | --- |
 | Syntax error in the file, today’s code | Crash since its a syntax error, json decode exception will be triggered which i handled by raising the error and returning a fresh session | Same current corrupt file with the syntax error | A fresh session that overwrites the previously  corrupt data |			
-| Bad value in one record, today’s code | This will crash(fail fast). When the account object checks the corrupt field it'll raises an `InvalidTransactionTypeError` | Nothing changes | The same file stays as is |			
+| Bad value in one record, today’s code | No issues but tampering has more or less occured so the corrupted or invalid value get passed in | Nothing changes | The same file stays as is |			
 | Bad value in one record, after option A | The syntax error crashes the app so the bad value is never read | Same current corrupt file with syntax error and value error | A fresh session overwriting the previously corrupt session  |	

@@ -31,7 +31,7 @@
             "amount": 20000,
             "acc_id": "acc_dniUt",
             "timestamp": "2026-11-05T14:12:37+00:00",
-            "transaction_type": "deposit"
+            "transaction_type": "chucks"
         },
         {
             "id": "trx_8Rjpg",

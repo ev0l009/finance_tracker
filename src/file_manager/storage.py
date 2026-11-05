@@ -11,7 +11,8 @@ import os
 from pathlib import Path
 
 from models.account import Account
-from models.types import JsonTrackerData, TrackerData
+from models.types import JsonTrackerData, TrackerData, TrxType
+from models.transaction import WithdrawalTrx, TransferTrx, DepositTrx
 
 # Resolution of relative project paths
 DB_DIR = Path(__file__).resolve().parent.parent.parent / "db"
@@ -119,11 +120,30 @@ def load_tracker_data() -> TrackerData:
     for trx in raw_data.get("transactions", []):
         trx_copy = trx.copy()
         timestamp = trx_copy.get("timestamp")
+        trx_type = trx_copy.get("transaction_type")
 
         if isinstance(timestamp, str):
             trx_copy["timestamp"] = datetime.fromisoformat(timestamp)
-            
-        deserialized_data["transactions"].append(trx_copy)
+
+        if trx_type == TrxType.DEPOSIT.value:
+            trx_obj = DepositTrx(
+                id=trx_copy["id"],
+                acc_id=trx_copy["acc_id"],
+                amount=trx_copy["amount"],
+                transaction_type=TrxType.DEPOSIT.value,
+                timestamp=timestamp
+            ).
+            deserialized_data["transactions"].append(trx_obj)
+        elif trx_type == TrxType.TRANSFER.value:
+            trx_obj = TransferTrx(
+                id=trx_copy["id"],
+                amount=trx_copy["amount"],
+                timestamp=timestamp
+                source_acc_id=trx_copy["source_acc_id"],
+                target_acc_id=trx_copy["target_acc_id"],
+                transaction_type=TrxType.TransferTrx.value,
+            ) 
+            deserialized_data["transactions"].append(trx_obj)
 
     print("\n  [✓] Session data loaded successfully.")
     return deserialized_data
