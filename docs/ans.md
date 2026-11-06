@@ -1,38 +1,47 @@
-| Area | Concrete evidence | Classification | Exercise that demonstrates improvement |
-| --- | --- | --- | --- |
-| Requirements analysis | Added account caps without requirements justification; removed manual transaction dates despite specification. | Process lapse | Extract requirements from a feature specification and produce a requirements-to-code checklist before implementation. |
-| Software design | Initially struggled with where validation belongs and whether entities should be objects or dictionaries. | Knowledge gap + application gap | Given a feature, identify component responsibilities and justify where each business rule belongs. |
-| Technical decision-making | Introduced pending-state machinery before establishing whether atomic writes already prevented partial transfers.	 | Process lapse |Investigate a failure scenario, identify existing guarantees, compare alternatives and justify the simplest sufficient solution. |
-| Edge cases and invariants | Self-transfer prevention existed only in the UI; invalid transaction states could be constructed. | Knowledge gap + application gap | Build an invariant table and write tests attempting to violate every invariant. |
-| Testing | Tests passed despite missing withdrawal account identification and incomplete serialization coverage. | Knowledge gap + process lapse | Write tests for missing fields, invalid states and failure scenarios; verify that removing validation causes tests to fail. |
-| Persistence and consistency | Corrupted ledger recovery could result in valid financial data being overwritten; operation-ordering questions remained unanswered. | Knowledge gap + application gap | Reproduce corruption and save failures experimentally; document memory and disk state at each failure point. |
-| Engineering discipline | Undocumented design changes, contradictory documentation and unused from_json discovered only after prompting. | Process lapse | Use a drift ledger, decision log, codebase audit and pre-submission checklist. |
-| AI-assisted engineering | Some polished explanations contained stronger claims than the reasoning demonstrated. | Process lapse + application gap | Write independent technical explanations before using AI to critique them; defend every architectural claim under questioning. |
+## Verdict: better in two places, still unverified in one
 
+**Credit where it's due.** Leaving the last two cells blank was the right call. An honest "I haven't implemented that" beats a confident guess, and it answers my earlier question: option A is a design, not running code. You also spotted a real hazard: if load stops partway, memory holds only some of the records, and a later save would write that incomplete set back. That's a genuine insight.
 
-Your prediction
+## Row 1 is still a prediction, not an observation
+You say the app crashes on a syntax error. Earlier you told me the code catches the load failure and returns an empty database with a message. Those can't both be true, and I still don't have the four code facts. I'd put this pattern on your pre-submission checklist as a question: **"Which code am I describing, and have I looked?"**
 
-The core of it is right: the original data is lost. But the prediction has two problems, and noticing them before running anything is exactly what the prediction step is for.
+Stop predicting row 1. Run it on a copy of your ledger and see what the app does. Then open the code and find *why*, and paste the load function and anything that saves on exit so I can check your reading. That resolves the contradiction with evidence.
 
-1. It doesn’t say when the data is lost. You wrote that the sessions were “cleared due to the corrupted record.” Think about the file on disk at the moment the load fails. Has anything changed it yet? Then ask what triggers the first write, and whether your app ever saves without a user operation (on exit, say). Add that to the prediction.
+## Row 2 is fine
+The wording "tampering" is loose, since nothing tampered with anything. The record is simply invalid. The bigger point is the comparison I asked for and you haven't answered yet: for the user, is a bad record that passes silently better or worse than a crash? Use it in your fail-fast explanation below.
 
-2. It contradicts your own rules. You predicted the file would hold “just the new ₦500 expense.” After an empty-baseline recovery, what exists in the ledger? Given your rules (an expense must reference an account, balances can’t go negative), what would have to happen before a ₦500 expense could be recorded? Work out the full sequence of actions and what the file holds after each.
+## Row 3: design, not prediction
+Since it isn't implemented, fill in what you **want** to happen in each cell, and what mechanism guarantees it. On your partial-load point, two refinements:
+- "Likely corrupt" isn't quite right. The file would be **truncated**: the records before the bad one survive, and the bad one and every record after it vanish. What would the user notice, and when?
+- What property do you want the load function to have? You already designed a property for the *write* direction: atomic replace, so a write either fully happens or doesn't. What's the equivalent for load? Name it and say what it requires.
 
-I’d tag this one an application gap: you know an expense needs an account with enough money, and that dependency didn’t get applied while you were predicting. That’s the recognition step we discussed.
+## Fail-fast versus fail-safe: rework this
+Your one-liners ("crashes loudly" versus "handled gracefully") frame them as opposites, and they aren't. Look at the trap in "handled gracefully": the Gate 1 behavior of returning an empty ledger is graceful, and it's also the *most dangerous* option for your data. Don't look up definitions. Define each term by two things in a load failure: **what happens to the stored data** and **what the user sees**. Then say whether one design can be both, and whether your three rows are examples of either.
 
-Next
-Send your revised prediction as a short list of “after this action, the file contains X” steps. Do this before running anything.
-Then run it: copy your ledger first, corrupt one record, and follow your own sequence.
-Report the result, and note any place where it differed from your prediction.
-Start Stage 1 alongside it. Confirm or adjust the day split.
+## Tag
+- The definitions: **knowledge gap**. This concept is new to you, so the remedy is to reason it through, not to apply a checklist.
+- Not finding the code facts: **process lapse**, now for the third time.
 
-
-ledger.json holds 500 valid transactions and one record with a typo. The app starts, prints an error, and continues with an empty ledger. The user, not reading closely, records a ₦500 expense. What does ledger.json contain afterward?
-
-I'll try again with focus on transaction records. The app tries to load stored records from ledger.json, assuming there are no errors while reading from ledger.json, during deserialization, each trx dict is rebuilt as an object. Say the field with the typo is transaction_type, this particuar record raises an error which will crash the app. i didn't make any provisions for this scenario during loading or in the storage layer. I think this is not necessarily a bad thing as all records aren't wiped yet, including the corrupt one. I haven't tested yet. just tried testinmg this scenario yet. Keep pointing me in the right direction if i haven't gotten it tho
+## Next
+1. Run rows 1 and 2 on a copy of the ledger and report the actual behavior.
+2. Paste the load function and any save-on-exit code.
+3. Row 3: desired behavior, plus the load property.
+4. Redo fail-fast/fail-safe as described.
 
 | Scenario | User sees at startup | File contents right after startup | Does anything save on the way out? |
 | --- | --- | --- | --- |
-| Syntax error in the file, today’s code | Crash since its a syntax error, json decode exception will be triggered which i handled by raising the error and returning a fresh session | Same current corrupt file with the syntax error | A fresh session that overwrites the previously  corrupt data |			
-| Bad value in one record, today’s code | No issues but tampering has more or less occured so the corrupted or invalid value get passed in | Nothing changes | The same file stays as is |			
-| Bad value in one record, after option A | The syntax error crashes the app so the bad value is never read | Same current corrupt file with syntax error and value error | A fresh session overwriting the previously corrupt session  |	
+| Syntax error in the file, today’s code | App crashes since its a syntax error, json decode exception will be triggered on load | Same current corrupt file with the syntax error(fail-fast) | nothing saves so corrupt file stays as is |			
+| Bad value in one record, today’s code | No crashes, app runs as expected but tampering has more or less occured so the corrupted or invalid value get passed in | Nothing changes | The same file stays as is |			
+| Bad value in one record, after option A | the file parses fine, but when the field with error value is been parsed it'll trigger an error as it has to go through the Transaction object checks and validations  | ... | ...  |
+
+i left the last two blank cus i haven't quite implemented it so i'll have a go at it. The objects will be loaded in memory right up to the point of the error, so if the session gets saved, it'll likely it'll be corrupt
+
+
+Fail-fast => app crashes loudly
+fail-safe => error is handled gracefully
+
+
+for the first scenario with the syntax error, my current implementation raises a JSON decode error , print an error message saying the data is corrupt but doesn't crash the app. In the end the load function returns a fresh new empty session instead of working with the corrupt one
+
+For the row 2, it would be worst to allow a bad record to pass, it'll be better to let it crash(fail-fast)
+

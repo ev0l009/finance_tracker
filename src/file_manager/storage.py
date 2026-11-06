@@ -132,17 +132,27 @@ def load_tracker_data() -> TrackerData:
                 amount=trx_copy["amount"],
                 transaction_type=TrxType.DEPOSIT.value,
                 timestamp=timestamp
-            ).
+            )
             deserialized_data["transactions"].append(trx_obj)
         elif trx_type == TrxType.TRANSFER.value:
             trx_obj = TransferTrx(
                 id=trx_copy["id"],
                 amount=trx_copy["amount"],
-                timestamp=timestamp
+                timestamp=timestamp,
                 source_acc_id=trx_copy["source_acc_id"],
                 target_acc_id=trx_copy["target_acc_id"],
-                transaction_type=TrxType.TransferTrx.value,
-            ) 
+                transaction_type= TrxType.TRANSFER.value
+            )
+            deserialized_data["transactions"].append(trx_obj)
+        elif trx_type == TrxType.WITHDRAW.value:
+            trx_obj = WithdrawalTrx(
+                id=trx_copy["id"],
+                amount=trx_copy["amount"],
+                timestamp=timestamp,
+                acc_id=trx_copy["acc_id"],
+                category=trx_copy["category"],
+                transaction_type= TrxType.WITHDRAW.value
+            )
             deserialized_data["transactions"].append(trx_obj)
 
     print("\n  [✓] Session data loaded successfully.")
